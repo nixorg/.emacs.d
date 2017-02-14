@@ -9,7 +9,7 @@
 ;(setq ergoemacs-keyboard-layout "us") ;; Assumes QWERTY keyboard layout
 ;(setq ergoemacs-keyboard-layout "dv")
 ;(ergoemacs-mode 1)
-
+;;;"this in "
 
 (use-package swiper
   :ensure t
@@ -26,21 +26,39 @@
 	      ;; (lambda () (local-set-key (kbd "M-c") 'ivy-previous-line )))
     (global-set-key (kbd "C-1") 'ivy-dispatching-done)
                                         ;(global-set-key (kbd "<f6>") 'ivy-resume)
-    (global-set-key (kbd "M-a") 'counsel-M-x)))
-
+    (global-set-key (kbd "M-a") 'counsel-M-x)
+    ))
 
 (defun my-minibuffer-setup-hook ()
   (xah-fly-keys 0))
 (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup-hook)
 
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+
+(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
+
+
+
+
 (add-to-list 'load-path "~/.emacs.d/config")
 (require 'xah-fly-keys)
-(xah-fly-keys 1)
+(xah-fly-keys 1)		;
 
-(require 'key-chord)
-(key-chord-mode 1)
+(define-key xah-fly-key-map (kbd "<f5>") 'revert-buffer)
+(define-key xah-fly-key-map (kbd "a") 'counsel-M-x)
 
-(key-chord-define xah-fly-key-map "dd" 'backward-word)
+
+;; (require 'key-chord)
+;; (key-chord-mode 1)
+
+;; (key-chord-define xah-fly-key-map "dd" 'backward-word)
 
 ;;; Global settings
 (scroll-bar-mode -1)
@@ -50,8 +68,13 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (set-default 'truncate-lines t)
 (delete-selection-mode 1)
+(setq visible-bell t)
+(setq ring-bell-function 'ignore)
 (setq inhibit-startup-screen t)
 (prefer-coding-system 'utf-8)
+
+
+
                                         ;(set-default-font "Menlo 10")
                                         ; (setq default-frame-alist '((font . "Meslo LG S 10")))
                                         ;(set-frame-font "Inconsolata 12")
@@ -78,30 +101,19 @@
 (set-default 'truncate-lines t)
 (setq inhibit-startup-screen t)
 (prefer-coding-system 'utf-8)
-                                        ;(set-default-font "Menlo 10")
-                                        ; (setq default-frame-alist '((font . "Meslo LG S 10")))
-                                        ;(set-frame-font "Inconsolata 12")
-
-;(setq default-frame-alist '((font . "Fira Mono 10")))
-(setq icicle-ido-like-mode nil)
-(setq icicle-mode nil)
-(add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-(add-to-list 'default-frame-alist '(font . "Fira Mono 10"))
-(add-to-list 'default-frame-alist '(font . "Fira Mono 10"))
-
-
-(setq make-backup-files         nil) ; Don't want any backup files
-(setq auto-save-list-file-name  nil) ; Don't want any .saves files
-(setq auto-save-default         nil) ; Don't want any auto saving
 
 (global-nlinum-mode 1)
 (setq nlinum-format " %3d ")
 
+(global-undo-tree-mode 1)
+;; make ctrl-z undo
+(global-set-key (kbd "M-;") 'undo)
+;; make ctrl-Z redo
+(defalias 'redo 'undo-tree-redo)
+(global-set-key (kbd "M-:") 'redo)
 
 (when window-system
   (global-hl-line-mode))
-
 
 ;; enable paren mode
 
@@ -137,7 +149,7 @@
 (setq w32-pass-lwindow-to-system nil)
 (setq w32-lwindow-modifier 'super)
 
-
+;; (define-key key-translation-map (kbd "<f13>") (kbd "s"))
 
 (require 'winner)
 (winner-mode 1)
@@ -145,8 +157,21 @@
 ;(global-set-key (kbd "<apps> t") 'winner-redo)
 
 
-(global-set-key (kbd "s-;") 'winner-undo)
-(global-set-key (kbd "s-:") 'winner-redo)
+(global-set-key (kbd "M-9") 'winner-undo)
+(global-set-key (kbd "M-0") 'winner-redo)
+
+(global-set-key (kbd "M-c") 'previous-line)
+(global-set-key (kbd "M-h") 'backward-char)
+(global-set-key (kbd "M-t") 'next-line)
+(global-set-key (kbd "M-n") 'forward-char)
+(global-set-key (kbd "M-g") 'backward-word)
+(global-set-key (kbd "M-r") 'forward-word)
+(global-set-key (kbd "M-d") 'xah-beginning-of-line-or-block)
+(global-set-key (kbd "M-s") 'xah-end-of-line-or-block)
+(global-set-key (kbd "M-e") 'delete-backward-char)
+(global-set-key (kbd "M-u") 'delete-forward-char)
+(global-set-key (kbd "M-.") 'backward-kill-word)
+(global-set-key (kbd "M-p") 'kill-word)
 
 (defun move-text-internal (arg)
    (cond
@@ -190,7 +215,9 @@
   (progn
     (global-set-key (kbd "M-8") 'mc/mark-next-like-this)
 					; (global-set-key (kbd "C-") 'mc/mark-previous-like-this)
-    (global-set-key (kbd "M-<f3>") 'mc/mark-all-like-this)))
+    (global-set-key (kbd "M-<f3>") 'mc/mark-all-like-this)
+    (define-key xah-fly-key-map (kbd "*") 'mc/mark-next-like-this)
+))
 
 
 ;;ivy actions 
@@ -303,20 +330,69 @@
 
 (global-set-key (kbd "M-<f9>") 'fill-paragraph)
 (global-set-key (kbd "M-<f10>") 'toggle-truncate-lines)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-agenda-files
-   (quote
-    ("f:/datalex/org/tasks.org_archive" "f:/datalex/org/tasks.org")) t)
- '(package-selected-packages
-   (quote
-    (key-chord evil-dvorak org-bullets solarized-theme ace-jump-mode ergoemacs-mode which-key web-mode vlf use-package try tidy tide spacemacs-theme smex rainbow-mode rainbow-delimiters projectile project-root powerline persistent-soft nlinum neotree multiple-cursors material-theme logview highlight-quoted highlight-numbers help-fns+ helm f evil-multiedit evil-anzu eldoc-eval doom-themes counsel company ac-capf 0blayout))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
+(defun replace-char (arg)
+  (interactive
+   (list
+    (read-char-exclusive)))
+  (delete-char 1)
+  (insert arg))
+
+;;(elpy-enable)
+(defun my/python-mode-hook ()
+  (add-to-list 'company-backends 'company-jedi))
+
+;(add-hook 'python-mode-hook 'my/python-mode-hook)
+;(add-hook 'python-mode-hook 'jedi:setup)
+;(setq jedi:complete-on-dot t)
+;(setq jedi:environment-root "jedi")
+
+
+
+(require 'elpy)
+;;(prelude-require-packages '(elpy jedi))
+(elpy-enable)
+(setq exec-path (append exec-path '("c:/Program Files (x86)/Python/Python36-32/Scripts")))
+(elpy-use-ipython)
+(setq elpy-rpc-backend "jedi")
+
+(defun prelude-personal-python-mode-defaults ()
+  "Personal defaults for Python programming."
+  ;; Enable elpy mode
+  (elpy-mode)
+  ;; Jedi backend
+  ;; (jedi:setup)
+  ;; (setq jedi:complete-on-dot t) ;optional
+  ;; (auto-complete-mode)
+  ;; (jedi:ac-setup)
+  ;(setq elpy-rpc-python-command "python3")
+  ;ch(python-shell-interpreter "ipython3")
+ (company-quickhelp-mode)
+  )
+
+(setq prelude-personal-python-mode-hook 'prelude-personal-python-mode-defaults)
+
+(add-hook 'python-mode-hook (lambda ()
+                              (run-hooks 'prelude-personal-python-mode-hook)))
+
+
+
+(defun xah-display-minor-mode-key-priority  ()
+  "Print out minor mode's key priority.
+URL `http://ergoemacs.org/emacs/minor_mode_key_priority.html'
+Version 2017-01-27"
+  (interactive)
+  (mapc
+   (lambda (x) (prin1 (car x)) (terpri))
+   minor-mode-map-alist))
+
+(add-hook 'after-load-functions 'my-keys-have-priority)
+
+(defun my-keys-have-priority (_file)
+  "Try to ensure that my keybindings retain priority over other minor modes.
+
+Called via the `after-load-functions' special hook."
+  (unless (eq (caar minor-mode-map-alist) 'xah-fly-keys)
+    (let ((mykeys (assq 'xah-fly-keys minor-mode-map-alist)))
+      (assq-delete-all 'xah-fly-keys minor-mode-map-alist)
+      (add-to-list 'minor-mode-map-alist mykeys))))

@@ -1,3 +1,4 @@
+
 ;;; xah-fly-keys.el --- ergonomic modal keybinding minor mode. -*- coding: utf-8; lexical-binding: t; -*-
 
 ;; Copyright © 2013-2016, by Xah Lee
@@ -2841,8 +2842,8 @@ Version 2017-01-21"
       (define-key xah-fly-key-map (kbd "<C-tab>") 'xah-next-user-buffer)
       (define-key xah-fly-key-map (kbd "<C-S-iso-lefttab>") 'xah-previous-user-buffer)
 
-      (define-key xah-fly-key-map (kbd "C-1") 'xah-pop-local-mark-ring)
-      (define-key xah-fly-key-map (kbd "C-2") 'pop-global-mark)
+      ;; (define-key xah-fly-key-map (kbd "C-1") 'xah-pop-local-mark-ring)
+      ;; (define-key xah-fly-key-map (kbd "C-2") 'pop-global-mark)
 
       (define-key xah-fly-key-map (kbd "C-7") 'xah-pop-local-mark-ring)
       (define-key xah-fly-key-map (kbd "C-8") 'pop-global-mark)
@@ -2855,19 +2856,19 @@ Version 2017-01-21"
       (define-key xah-fly-key-map (kbd "C-a") 'mark-whole-buffer)
       (define-key xah-fly-key-map (kbd "C-n") 'xah-new-empty-buffer)
       (define-key xah-fly-key-map (kbd "C-S-n") 'make-frame-command)
-      (define-key xah-fly-key-map (kbd "C-o") 'find-file)
+      (define-key xah-fly-key-map (kbd "C-r") 'find-file)
       (define-key xah-fly-key-map (kbd "C-s") 'save-buffer)
       (define-key xah-fly-key-map (kbd "C-S-s") 'write-file)
       (define-key xah-fly-key-map (kbd "C-S-t") 'xah-open-last-closed)
-      (define-key xah-fly-key-map (kbd "C-v") 'yank)
+      (define-key xah-fly-key-map (kbd "C-k") 'yank)
       (define-key xah-fly-key-map (kbd "C-w") 'xah-close-current-buffer)
-      (define-key xah-fly-key-map (kbd "C-z") 'undo)
+      (define-key xah-fly-key-map (kbd "C-\"") 'undo)
 
-      (define-key xah-fly-key-map (kbd "C-+") 'text-scale-increase)
-      (define-key xah-fly-key-map (kbd "C--") 'text-scale-decrease)
-      (define-key xah-fly-key-map (kbd "C-0") (lambda () (interactive) (text-scale-set 0)))
+      (define-key xah-fly-key-map (kbd "C--") 'text-scale-increase)
+      (define-key xah-fly-key-map (kbd "C-+") 'text-scale-decrease)
+      ;; (define-key xah-fly-key-map (kbd "C-0") (lambda () (interactive) (text-scale-set 0)))
 
-      (define-key xah-fly-key-map (kbd "C-r") 'hippie-expand)
+      ;; (define-key xah-fly-key-map (kbd "C-r") 'hippie-expand)
       (define-key xah-fly-key-map (kbd "C-t") 'xah-toggle-letter-case) ; never do transpose-chars
       ;;
       ))
@@ -2875,18 +2876,26 @@ Version 2017-01-21"
   (progn ; rule: all commands with meta key defined here must have other shortcuts. that is, meta binding is considered a luxury
 
     (define-key xah-fly-key-map (kbd "M-RET") 'xah-cycle-hyphen-underscore-space)
-    (define-key xah-fly-key-map (kbd "M-c") 'xah-toggle-letter-case )
-    (define-key xah-fly-key-map (kbd "M-g") 'hippie-expand )
-    (define-key xah-fly-key-map (kbd "M-h") 'xah-insert-brace )
+    (define-key xah-fly-key-map (kbd "M-;") 'xah-comment-dwim)
+    ;; (define-key xah-fly-key-map (kbd "M-c") 'xah-toggle-letter-case )
+    ;; (define-key xah-fly-key-map (kbd "M-g") 'hippie-expand )
+    ;; (define-key xah-fly-key-map (kbd "M-h") 'xah-insert-brace )
     (define-key xah-fly-key-map (kbd "M-m") xah-insertion-keymap)
-    (define-key xah-fly-key-map (kbd "M-n") 'xah-insert-square-bracket)
-    (define-key xah-fly-key-map (kbd "M-t") 'xah-insert-paren)
-    (define-key xah-fly-key-map (kbd "M-l") 'left-char) ; rid of downcase-word
+    ;; (define-key xah-fly-key-map (kbd "M-n") 'xah-insert-square-bracket)
+    ;; (define-key xah-fly-key-map (kbd "M-t") 'xah-insert-paren)
+    ;; (define-key xah-fly-key-map (kbd "M-l") 'left-char) ; rid of downcase-word
 
     (define-key xah-fly-key-map (kbd "M-SPC") 'xah-fly-command-mode-activate))
 
   (define-key xah-fly-key-map (kbd "<home>") 'xah-fly-command-mode-activate)
-  (define-key xah-fly-key-map (kbd "<apps>") 'xah-fly-command-mode-activate)
+  (define-key xah-fly-key-map (kbd "<escape>") 'quit-command)
+
+(defun quit-command()
+  (interactive)
+  (xah-fly-command-mode-activate)
+  (keyboard-quit))
+
+
   (define-key xah-fly-key-map (kbd "<menu>") 'xah-fly-command-mode-activate)
   (define-key xah-fly-key-map (kbd "<f8>") 'xah-fly-command-mode-activate)
 
@@ -2952,32 +2961,38 @@ Version 2017-01-21"
 
      ("1" . nil)
      ("2" . nil)
+     ("8" . nil)
+
      ("3" . delete-other-windows)
      ("4" . split-window-below)
-     ("5" . delete-char)
+     ;("5" . delete-char)
+     ("5" . replace-char)
      ("6" . xah-select-block)
      ("7" . xah-select-current-line)
      ("8" . er/expand-region)
      ("9" . xah-select-text-in-quote)
-     ("0" . xah-backward-punct)
+     ("]" . xah-backward-punct)
 
-     ("a" . execute-extended-command)
-     ("b" . isearch-forward)
+     ("a" . counsel-M-x)
+     ("f" . isearch-forward)
      ("c" . previous-line)
      ("d" . xah-beginning-of-line-or-block)
      ("e" . xah-delete-backward-char-or-bracket-text)
-     ("f" . undo)
+     ("E" . xah-cut-line-or-region)
+     (";" . undo)
+     (":" . undo-tree-redo)
      ("g" . backward-word)
      ("h" . backward-char)
-     ("i" . xah-delete-text-block)
-     ("j" . xah-cut-line-or-region)
+     ("i" . ace-jump-mode)
+     ("q" . xah-cut-line-or-region)
      ("k" . xah-paste-or-paste-previous)
      ("l" . xah-fly-insert-mode-activate-space-before)
+     ("m" . xah-backward-left-bracket)
      ("m" . xah-backward-left-bracket)
      ("n" . forward-char)
      ("o" . open-line)
      ("p" . kill-word)
-     ("q" . xah-copy-line-or-region)
+     ("j" . xah-copy-line-or-region)
      ("r" . forward-word)
      ("s" . xah-end-of-line-or-block)
      ("t" . next-line)
@@ -2988,7 +3003,7 @@ Version 2017-01-21"
      ("y" . set-mark-command)
      ("z" . xah-goto-matching-bracket)))
 
-  (define-key xah-fly-key-map (kbd "a") (if (fboundp 'smex) 'smex 'execute-extended-command ))
+  ;; (define-key xah-fly-key-map (kbd "a") (if (fboundp 'smex) 'smex 'execute-extended-command ))
   (when xah-fly-swapped-1-8-and-2-7-p
     (progn
       (define-key xah-fly-key-map (kbd "8") nil)
@@ -3017,8 +3032,18 @@ Version 2017-01-21"
      ("\\" . nil)
      ("]" . nil)
      ("`" . nil)
+     ("]" . nil)
      ("~" . nil)
-
+     ("+" . nil)
+     (")" . nil)
+     ("*" . nil)
+     ("(" . nil)
+     ("}" . nil)
+     ("{" . nil)
+     ("[" . nil)
+     ("&" . nil)
+     ("\"" . nil)     
+     (":" . nil)     
      ("1" . nil)
      ("2" . nil)
      ("3" . nil)
@@ -3035,6 +3060,7 @@ Version 2017-01-21"
      ("c" . nil)
      ("d" . nil)
      ("e" . nil)
+     ("E" . nil)
      ("f" . nil)
      ("g" . nil)
      ("h" . nil)
@@ -3070,6 +3096,7 @@ Version 2017-01-21"
 ;; automatic save buffer when switching to command mode
 (add-hook 'xah-fly-command-mode-activate-hook 'xah-fly-save-buffer-if-file)
 
+
 (defun xah-fly-save-buffer-if-file ()
   "Save current buffer if it is a file."
   (interactive)
@@ -3082,7 +3109,8 @@ Version 2017-01-21"
   (modify-all-frames-parameters (list (cons 'cursor-type 'box)))
   (setq xah-fly-insert-state-q nil )
   (xah-fly-command-mode-init)
-  (run-hooks 'xah-fly-command-mode-activate-hook))
+  (run-hooks 'xah-fly-command-mode-activate-hook)
+  )
 
 (defun xah-fly-insert-mode-activate ()
   "Activate insertion mode."

@@ -47,7 +47,6 @@
 (xah-fly-keys 1)
 
 ;; Define my custom modal keys
-
 (define-key xah-fly--tab-key-map (kbd "x") 'indent-xml)
 (define-key xah-fly-e-keymap (kbd "k") 'paste-xml)
 (define-key xah-fly-leader-key-map (kbd "u") 'helm-mini)
@@ -70,7 +69,6 @@
      (define-key nxml-mode-map (kbd "M-N") 'hs-toggle-hiding)
      (define-key nxml-mode-map (kbd "M-0") 'hs-show-all)))
 
-
 ;; Ergoemacs like keys
 (global-set-key (kbd "M-c") 'previous-line)
 (global-set-key (kbd "M-h") 'backward-char)
@@ -88,6 +86,7 @@
 (global-set-key (kbd "M-T") 'move-text-down)
 (global-set-key (kbd "M-k") 'xah-paste-or-paste-previous)
 (global-set-key (kbd "M-j") 'xah-copy-line-or-region)
+
 (require 'winner)
 (winner-mode 1)
 
@@ -151,12 +150,6 @@
 	 :map xah-fly-key-map
 	 ("C-r" . helm-find-files)))
 
-;; (require 'helm)
-;; (define-key helm-map (kbd "M-c") 'helm-previous-line)
-;; (define-key helm-map (kbd "M-t") 'helm-next-line)
-;; (global-set-key (kbd "M-f") 'helm-occur)
-;; (define-key xah-fly-key-map (kbd "C-r") 'helm-find-files)
-
 (use-package which-key
   :ensure t
   :config
@@ -171,14 +164,12 @@
   :bind (:map paredit-mode-map
 	(";" . nil)))
 
-
-
 (use-package multiple-cursors
   :ensure t
   :config
   (progn
     (define-key mc/keymap (kbd "<escape>") 'mc/keyboard-quit)
-    (global-set-key (kbd "M-<f3>") 'mc/mark-all-like-this)))
+    (global-set-key (kbd "C-8") 'mc/mark-all-like-this)))
 
 ;; Custom defuns
 (defun move-text-internal (arg)

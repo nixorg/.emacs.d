@@ -1,66 +1,10 @@
-﻿(require 'package)
+﻿;; Package settings
+(require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/")   t)
 (package-initialize)
 
-;(require 'ergoemacs-mode)
-
-;(setq ergoemacs-theme nil) ;; Uses Standard Ergoemacs keyboard theme
-;(setq ergoemacs-keyboard-layout "us") ;; Assumes QWERTY keyboard layout
-;(setq ergoemacs-keyboard-layout "dv")
-;(ergoemacs-mode 1)
-;;;"this in "
-
-(use-package swiper
-  :ensure t
-  :config
-  (progn
-    (ivy-mode 1)
-    (setq ivy-use-virtual-buffers t)
-    (setq ivy-display-style 'fancy)
-    (define-key ivy-minibuffer-map (kbd "M-t") 'ivy-next-line) ;
-    (define-key ivy-minibuffer-map (kbd "M-c") 'ivy-previous-line)
-    (global-set-key (kbd "M-f") 'swiper)
-    
-		  ;; (add-hook 'ivy-mode-hook
-	      ;; (lambda () (local-set-key (kbd "M-c") 'ivy-previous-line )))
-    (global-set-key (kbd "C-1") 'ivy-dispatching-done)
-                                        ;(global-set-key (kbd "<f6>") 'ivy-resume)
-    (global-set-key (kbd "M-a") 'counsel-M-x)
-    ))
-
-(defun my-minibuffer-setup-hook ()
-  (xah-fly-keys 0))
-(add-hook 'minibuffer-setup-hook 'my-minibuffer-setup-hook)
-
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-
-
-(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
-(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
-(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
-(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
-(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
-(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
-(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
-
-
-
-
-(add-to-list 'load-path "~/.emacs.d/config")
-(require 'xah-fly-keys)
-(xah-fly-keys 1)		;
-
-(define-key xah-fly-key-map (kbd "<f5>") 'revert-buffer)
-(define-key xah-fly-key-map (kbd "a") 'counsel-M-x)
-
-
-;; (require 'key-chord)
-;; (key-chord-mode 1)
-
-;; (key-chord-define xah-fly-key-map "dd" 'backward-word)
-
-;;; Global settings
+;; General settings
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1) ; relegate tooltips to echo area only
@@ -72,57 +16,23 @@
 (setq ring-bell-function 'ignore)
 (setq inhibit-startup-screen t)
 (prefer-coding-system 'utf-8)
-
-
-
-                                        ;(set-default-font "Menlo 10")
-                                        ; (setq default-frame-alist '((font . "Meslo LG S 10")))
-                                        ;(set-frame-font "Inconsolata 12")
-
-;(setq default-frame-alist '((font . "Fira Mono 10")))
 (setq icicle-ido-like-mode nil)
 (setq icicle-mode nil)
 (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (add-to-list 'default-frame-alist '(font . "Fira Mono 10"))
-;; (add-to-list 'default-frame-alist '(font . "Fira Mono 10"))
-
-
-(setq make-backup-files         nil) ; Don't want any backup files
-(setq auto-save-list-file-name  nil) ; Don't want any .saves files
-(setq auto-save-default         nil) ; Don't want any auto saving
-
-;;; Global settings
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
-(tooltip-mode -1) ; relegate tooltips to echo area only
-(menu-bar-mode -1)
-(fset 'yes-or-no-p 'y-or-n-p)
-(set-default 'truncate-lines t)
-(setq inhibit-startup-screen t)
-(prefer-coding-system 'utf-8)
+(setq make-backup-files nil)
+(setq auto-save-list-file-name nil)
+(setq auto-save-default nil)
+(global-undo-tree-mode 1)
+(show-paren-mode 1)
+(global-hl-line-mode)
+(setq scroll-conservatively 100)
 
 (global-nlinum-mode 1)
 (setq nlinum-format " %3d ")
 
-(global-undo-tree-mode 1)
-;; make ctrl-z undo
-(global-set-key (kbd "M-;") 'undo)
-;; make ctrl-Z redo
-(defalias 'redo 'undo-tree-redo)
-(global-set-key (kbd "M-:") 'redo)
-
-(when window-system
-  (global-hl-line-mode))
-
-;; enable paren mode
-
-(show-paren-mode 1)
-
-;(load-theme 'material t)
-;;;
-
-
+;; Theme settings
 (setq solarized-use-variable-pitch nil)
 (setq solarized-height-plus-1 1.0)
 (setq solarized-height-plus-2 1.0)
@@ -131,35 +41,37 @@
 (setq solarized-high-contrast-mode-line t)
 (load-theme 'solarized-dark t)
 
-(setq scroll-conservatively 100)
+;; Load custom modules from congig dir 
+(add-to-list 'load-path "~/.emacs.d/config")
+(require 'xah-fly-keys)
+(xah-fly-keys 1)
+
+;; Define my custom modal keys
+
+(define-key xah-fly--tab-key-map (kbd "x") 'indent-xml)
+(define-key xah-fly-e-keymap (kbd "k") 'paste-xml)
+(define-key xah-fly-leader-key-map (kbd "u") 'helm-mini)
+
+(define-key xah-fly-key-map (kbd "C-r") 'nil)
+(define-key xah-fly-key-map (kbd "C-r") 'find-file)
+(define-key xah-fly-key-map (kbd "C-k") 'yank)
+
+(define-key xah-fly-key-map (kbd "C--") 'text-scale-increase)
+(define-key xah-fly-key-map (kbd "C-+") 'text-scale-decrease)
+
+(define-key xah-fly-key-map (kbd "M-;") 'xah-comment-dwim)
+
+(define-key isearch-mode-map (kbd "M-c") 'isearch-repeat-backward)
+(define-key isearch-mode-map (kbd "M-t") 'isearch-repeat-forward)
+
+(eval-after-load "nxml-mode"
+  '(progn
+     (define-key nxml-mode-map (kbd "M-H") 'hs-hide-level)
+     (define-key nxml-mode-map (kbd "M-N") 'hs-toggle-hiding)
+     (define-key nxml-mode-map (kbd "M-0") 'hs-show-all)))
 
 
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(use-package try
-  :ensure t)
-
-
-(use-package which-key
-  :ensure t
-  :config
-  (which-key-mode))
-
-(setq w32-pass-lwindow-to-system nil)
-(setq w32-lwindow-modifier 'super)
-
-;; (define-key key-translation-map (kbd "<f13>") (kbd "s"))
-
-(require 'winner)
-(winner-mode 1)
-;(global-set-key (kbd "<apps> h") ')
-;(global-set-key (kbd "<apps> t") 'winner-redo)
-
-
-(global-set-key (kbd "M-9") 'winner-undo)
-(global-set-key (kbd "M-0") 'winner-redo)
-
+;; Ergoemacs like keys
 (global-set-key (kbd "M-c") 'previous-line)
 (global-set-key (kbd "M-h") 'backward-char)
 (global-set-key (kbd "M-t") 'next-line)
@@ -172,7 +84,103 @@
 (global-set-key (kbd "M-u") 'delete-forward-char)
 (global-set-key (kbd "M-.") 'backward-kill-word)
 (global-set-key (kbd "M-p") 'kill-word)
+(global-set-key (kbd "M-C") 'move-text-up)
+(global-set-key (kbd "M-T") 'move-text-down)
+(global-set-key (kbd "M-k") 'xah-paste-or-paste-previous)
+(global-set-key (kbd "M-j") 'xah-copy-line-or-region)
+(require 'winner)
+(winner-mode 1)
 
+;; Define custom function profix key 
+(xah-fly--define-keys
+ (define-prefix-command 'kde-function-keymap)
+ '(
+   ("9" . winner-undo)
+   ("0" . winner-redo)
+))
+(global-set-key (kbd "<f13>") kde-function-keymap)
+
+;; Disable modal keys in minibuffer
+(defun my-minibuffer-setup-hook ()
+  (xah-fly-keys 0))
+(add-hook 'minibuffer-setup-hook 'my-minibuffer-setup-hook)
+
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(define-key xah-fly-key-map (kbd "<escape>") 'quit-command)
+;; Add supporting of yank to minibuffer
+(defun my/paste-in-minibuffer ()
+  (local-set-key (kbd "M-k") 'yank)
+  (local-set-key (kbd "C-k") 'yank)
+  (local-set-key (kbd "C-a") 'mark-whole-buffer))
+(add-hook 'minibuffer-setup-hook 'my/paste-in-minibuffer)
+
+(defun quit-command()
+  (interactive)
+  (if (bound-and-true-p multiple-cursors-mode)
+    (mc/keyboard-quit))
+  (xah-fly-command-mode-activate)
+  (keyboard-quit))
+
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(use-package try
+  :ensure t)
+
+;; Swirer settings
+(use-package swiper
+  :ensure t
+  :config
+  (progn
+    (ivy-mode 1)
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-display-style 'fancy)
+    (define-key ivy-minibuffer-map (kbd "M-t") 'ivy-next-line) ;
+    (define-key ivy-minibuffer-map (kbd "M-c") 'ivy-previous-line)
+    ;; (global-set-key (kbd "M-f") 'swiper)
+    ))
+
+(use-package helm
+  :ensure t
+  :bind (("M-f" . helm-occur) 
+	 :map helm-map
+	 ("M-c" . helm-previous-line)
+	 ("M-t" . helm-next-line)
+	 :map xah-fly-key-map
+	 ("C-r" . helm-find-files)))
+
+;; (require 'helm)
+;; (define-key helm-map (kbd "M-c") 'helm-previous-line)
+;; (define-key helm-map (kbd "M-t") 'helm-next-line)
+;; (global-set-key (kbd "M-f") 'helm-occur)
+;; (define-key xah-fly-key-map (kbd "C-r") 'helm-find-files)
+
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode))
+
+(use-package paredit
+  :diminish paredit-mode
+  :init
+  (add-hook 'lisp-mode-hook 'enable-paredit-mode)
+  (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+  (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
+  :bind (:map paredit-mode-map
+	(";" . nil)))
+
+
+
+(use-package multiple-cursors
+  :ensure t
+  :config
+  (progn
+    (define-key mc/keymap (kbd "<escape>") 'mc/keyboard-quit)
+    (global-set-key (kbd "M-<f3>") 'mc/mark-all-like-this)))
+
+;; Custom defuns
 (defun move-text-internal (arg)
    (cond
     ((and mark-active transient-mark-mode)
@@ -206,35 +214,12 @@
    (interactive "*p")
    (move-text-internal (- arg)))
 
-(global-set-key (kbd "s-<") 'move-text-up)
-(global-set-key (kbd "s->") 'move-text-down)
-
-(use-package multiple-cursors
-  :ensure t
-  :config
-  (progn
-    (global-set-key (kbd "M-8") 'mc/mark-next-like-this)
-					; (global-set-key (kbd "C-") 'mc/mark-previous-like-this)
-    (global-set-key (kbd "M-<f3>") 'mc/mark-all-like-this)
-    (define-key xah-fly-key-map (kbd "*") 'mc/mark-next-like-this)
-))
-
-
-;;ivy actions 
-(defun ivy-test (x)
-  (kill-new x))
-
-(ivy-set-actions
- t
-'(("i" ivy-test "insert")))
-
 ;; XML
-
 (add-to-list 'hs-special-modes-alist
              '(nxml-mode
                "<!--\\|<[^/>]*[^/]>"
                "-->\\|</[^/>]*[^/]>"
-
+	       
                "<!--"
                sgml-skip-tag-forward
                nil))
@@ -248,13 +233,6 @@
     (end-of-line)
     (hs-toggle-hiding)))
 
-(add-hook 'nxml-mode-hook
-	  (lambda ()
-	    (progn 
-	      (local-set-key (kbd "M-[") #'hs-hide-level)
-	      (local-set-key (kbd "M-]") #'hs-toggle-hiding)
-	      (local-set-key (kbd "M-0") #'hs-show-all))))
-
 (defun indent-xml()
   (interactive)
   (goto-char (point-min))
@@ -264,8 +242,13 @@
   (indent-region (point-min) (point-max) nil))
 (global-set-key (kbd "M-<f12>") 'indent-xml)
 
-;; Large file hack
+(defun paste-xml ()
+  (interactive)
+  (my-large-file-mode)
+  (xah-paste-or-paste-previous)
+  (indent-xml))
 
+;; Large file performance improvement
 (setq line-number-display-limit large-file-warning-threshold)
 (setq line-number-display-limit-width 200)
 
@@ -284,10 +267,8 @@
   (set (make-variable-buffer-local 'column-number-mode) nil) )
 
 (add-to-list 'magic-mode-alist (cons #'my--is-file-large #'my-large-file-mode))
-(global-set-key (kbd "M-<f11>") 'my-large-file-mode)
-;; Company
 
-(add-hook 'after-init-hook 'global-company-mode)
+;; Company
 (with-eval-after-load 'company
   (define-key company-active-map (kbd "M-b") nil)
   (define-key company-active-map (kbd "M-l") nil)
@@ -297,39 +278,29 @@
   (define-key company-active-map (kbd "M-f") #'company-search-candidates))
 (global-set-key (kbd "M-y") 'company-complete)
 
-;(global-set-key (kbd "M-8") nil)
- 
+(add-hook 'after-init-hook 'global-company-mode)
+
 (use-package expand-region
    :ensure t
    :config
    (global-set-key (kbd "M-8") 'er/expand-region))
 
-
-
-(global-set-key (kbd "C-.") 'eval-region)
-
 (use-package help-fns+ ; Improved help commands
   :commands (describe-buffer describe-command describe-file
-             describe-keymap describe-option describe-option-of-type))
+			     describe-keymap describe-option describe-option-of-type))
 
 (use-package ace-jump-mode
   :ensure t
   :config
   (define-key global-map (kbd "M-i") 'ace-jump-mode))
 
-
 ;; org mode
-
 (add-hook 'org-mode-hook
           (lambda ()
             (org-bullets-mode t)))
-;; (setq org-ellipsis "⤵")
 (setq org-src-tab-acts-natively t)
 (setq org-agenda-files '("f:/datalex/org/"))
 (setq org-log-done 'time)
-
-(global-set-key (kbd "M-<f9>") 'fill-paragraph)
-(global-set-key (kbd "M-<f10>") 'toggle-truncate-lines)
 
 (defun replace-char (arg)
   (interactive
@@ -338,19 +309,11 @@
   (delete-char 1)
   (insert arg))
 
-;;(elpy-enable)
+;; Python config
 (defun my/python-mode-hook ()
   (add-to-list 'company-backends 'company-jedi))
 
-;(add-hook 'python-mode-hook 'my/python-mode-hook)
-;(add-hook 'python-mode-hook 'jedi:setup)
-;(setq jedi:complete-on-dot t)
-;(setq jedi:environment-root "jedi")
-
-
-
 (require 'elpy)
-;;(prelude-require-packages '(elpy jedi))
 (elpy-enable)
 (setq exec-path (append exec-path '("c:/Program Files (x86)/Python/Python36-32/Scripts")))
 (elpy-use-ipython)
@@ -366,33 +329,34 @@
   ;; (auto-complete-mode)
   ;; (jedi:ac-setup)
   ;(setq elpy-rpc-python-command "python3")
-  ;ch(python-shell-interpreter "ipython3")
- (company-quickhelp-mode)
-  )
+  ;; (python-shell-interpreter "ipython3")
+  (company-quickhelp-mode))
 
 (setq prelude-personal-python-mode-hook 'prelude-personal-python-mode-defaults)
 
 (add-hook 'python-mode-hook (lambda ()
                               (run-hooks 'prelude-personal-python-mode-hook)))
 
-
-
-(defun xah-display-minor-mode-key-priority  ()
-  "Print out minor mode's key priority.
-URL `http://ergoemacs.org/emacs/minor_mode_key_priority.html'
-Version 2017-01-27"
-  (interactive)
-  (mapc
-   (lambda (x) (prin1 (car x)) (terpri))
-   minor-mode-map-alist))
-
 (add-hook 'after-load-functions 'my-keys-have-priority)
 
 (defun my-keys-have-priority (_file)
   "Try to ensure that my keybindings retain priority over other minor modes.
-
 Called via the `after-load-functions' special hook."
   (unless (eq (caar minor-mode-map-alist) 'xah-fly-keys)
     (let ((mykeys (assq 'xah-fly-keys minor-mode-map-alist)))
       (assq-delete-all 'xah-fly-keys minor-mode-map-alist)
       (add-to-list 'minor-mode-map-alist mykeys))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (avy helm-swoop which-key web-mode vlf virtualenv use-package try tidy tide tabbar sublimity spacemacs-theme solarized-theme smex rainbow-mode rainbow-delimiters projectile project-root powerline persistent-soft paredit-everywhere org-bullets nlinum neotree multiple-cursors material-theme magit key-chord jedi icicles highlight-quoted highlight-numbers help-fns+ helm f expand-region exec-path-from-shell evil-multiedit evil-dvorak evil-anzu ergoemacs-mode elpy eldoc-eval doom-themes datetime counsel company-jedi ace-jump-mode ac-capf 0blayout))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

@@ -2556,7 +2556,7 @@ Version 2017-01-21"
  '(
    ("SPC" . xah-fly-insert-mode-activate)
    ("DEL" . xah-close-current-buffer)
-   ("RET" . execute-extended-command)
+   ("RET" . eval-region)
    ("TAB" . xah-fly--tab-key-map)
 
    ("." . xah-fly-dot-keymap)
@@ -2587,7 +2587,7 @@ Version 2017-01-21"
    ("d" . beginning-of-buffer)
    ("e" . xah-fly-e-keymap)
    ("f" . xah-search-current-word)
-   ("g" . isearch-forward)
+   ("g" . kde-git-keymap)
    ("h" . xah-fly-h-keymap)
    ("i" . xah-copy-file-path)
    ("j" . xah-cut-all-or-region)
@@ -2595,7 +2595,7 @@ Version 2017-01-21"
    ("l" . recenter-top-bottom)
    ("m" . dired-jump)
    ("n" . xah-fly-n-keymap)
-   ("o" . exchange-point-and-mark)
+   ("o" . kde-org-keymap)
    ("p" . query-replace)
    ("q" . xah-copy-all-or-region)
    ("r" . xah-fly-r-keymap)
@@ -2864,15 +2864,15 @@ Version 2017-01-21"
      ("2" . xah-pop-local-mark-ring)
      ("3" . xah-unplit-window-or-next-frame)
      ("4" . split-window-below)
-     ("5" . replace-char)
-     ;; ("5" . delete-char)
+     ;; ("5" . replace-char)
+     ("5" . delete-char)
      ("6" . xah-select-block)
      ("7" . xah-select-current-line)
      ("8" . er/expand-region)
-     ("9" . xah-select-text-in-quote)
-     ("0" . xah-backward-punct)
+     ("9" . scroll-down-command)
+     ("0" . scroll-up-command)
 
-     ("a" . execute-extended-command)
+     ("a" . helm-M-x)
      ("b" . isearch-forward)
      ("c" . previous-line)
      ("d" . xah-beginning-of-line-or-block)
@@ -2887,7 +2887,7 @@ Version 2017-01-21"
      ("m" . xah-backward-left-bracket)
      ("n" . forward-char)
      ("o" . open-line)
-     ("p" . kill-word)
+     ("p" . replace-char)
      ("q" . xah-cut-line-or-region)
      ("r" . forward-word)
      ("s" . xah-end-of-line-or-block)
@@ -2903,7 +2903,7 @@ Version 2017-01-21"
      ("X" . bookmark-set)
      ))
 
-  (define-key xah-fly-key-map (kbd "a") (if (fboundp 'smex) 'smex 'execute-extended-command ))
+  ;; (define-key xah-fly-key-map (kbd "a") (if (fboundp 'smex) 'smex 'execute-extended-command ))
   (when xah-fly-swapped-1-8-and-2-7-p
     (xah-fly--define-keys
      xah-fly-key-map

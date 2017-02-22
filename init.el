@@ -43,6 +43,9 @@
 
 ;; Load custom modules from congig dir 
 (add-to-list 'load-path "~/.emacs.d/config")
+(setq custom-file "~/.emacs.d/.emacs-custom.el")
+(load custom-file)
+
 (require 'xah-fly-keys)
 (xah-fly-keys 1)
 
@@ -171,6 +174,10 @@
     (define-key mc/keymap (kbd "<escape>") 'mc/keyboard-quit)
     (global-set-key (kbd "C-8") 'mc/mark-all-like-this)))
 
+(global-set-key (kbd "C-f") 'phi-search)
+;; (global-set-key (kbd "C-F") 'phi-search-backward)
+;; (global-set-key (kbd "C-F") 'phi-search-again-or-next)
+
 ;; Custom defuns
 (defun move-text-internal (arg)
    (cond
@@ -287,11 +294,21 @@
 
 ;; org mode
 (add-hook 'org-mode-hook
-          (lambda ()
-            (org-bullets-mode t)))
+	  (lambda ()
+		     (progn
+		       (org-bullets-mode t)
+		       (define-key org-mode-map (kbd "M-H") 'org-metaleft)
+		       (define-key org-mode-map (kbd "M-N") 'org-metaright))))
 (setq org-src-tab-acts-natively t)
 (setq org-agenda-files '("f:/datalex/org/"))
 (setq org-log-done 'time)
+
+(xah-fly--define-keys
+ (define-prefix-command 'kde-org-keymap)
+ '(
+   ("e" . org-edit-special)
+   ("a" . org-agenda)
+))
 
 (defun replace-char (arg)
   (interactive
@@ -306,8 +323,8 @@
 
 (require 'elpy)
 (elpy-enable)
-(setq exec-path (append exec-path '("c:/Program Files (x86)/Python/Python36-32/Scripts")))
-(elpy-use-ipython)
+(setq Exec-path (append exec-path '("c:/Program Files (x86)/Python/Python36-32/Scripts")))
+;; (elpy-use-ipython)
 (setq elpy-rpc-backend "jedi")
 
 (defun prelude-personal-python-mode-defaults ()
@@ -328,7 +345,14 @@
 (add-hook 'python-mode-hook (lambda ()
                               (run-hooks 'prelude-personal-python-mode-hook)))
 
-(add-hook 'after-load-functions 'my-keys-have-priority)
+(defun xah-display-minor-mode-key-priority  ()
+  "Print out minor mode's key priority.
+URL `http://ergoemacs.org/emacs/minor_mode_key_priority.html'
+Version 2017-01-27"
+  (interactive)
+  (mapc
+   (lambda (x) (prin1 (car x)) (terpri))
+   minor-mode-map-alist))
 
 (defun my-keys-have-priority (_file)
   "Try to ensure that my keybindings retain priority over other minor modes.
@@ -337,17 +361,31 @@ Called via the `after-load-functions' special hook."
     (let ((mykeys (assq 'xah-fly-keys minor-mode-map-alist)))
       (assq-delete-all 'xah-fly-keys minor-mode-map-alist)
       (add-to-list 'minor-mode-map-alist mykeys))))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (avy helm-swoop which-key web-mode vlf virtualenv use-package try tidy tide tabbar sublimity spacemacs-theme solarized-theme smex rainbow-mode rainbow-delimiters projectile project-root powerline persistent-soft paredit-everywhere org-bullets nlinum neotree multiple-cursors material-theme magit key-chord jedi icicles highlight-quoted highlight-numbers help-fns+ helm f expand-region exec-path-from-shell evil-multiedit evil-dvorak evil-anzu ergoemacs-mode elpy eldoc-eval doom-themes datetime counsel company-jedi ace-jump-mode ac-capf 0blayout))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
+(add-hook 'after-load-functions 'my-keys-have-priority)
+
+;; Resolve magit conflicts
+(use-package magit
+  :ensure t
+  :bind (:map magit-file-section-map
+	      ("u" . nil)
+	      ("a" . nil)))
+(xah-fly--define-keys
+ (define-prefix-command 'kde-git-keymap)
+ '(
+   ("s" . magit-status)
+   ("r" . magit-refresh)
+   ("c" . magit-commit)
+))
+
+
+
+(setq exec-path (append exec-path '("f:/app/cygwin/bin")))
+
+(yas-global-mode 1)
+
+(global-set-key (kbd "C-p") 'yas-expand)
+
+
+
+

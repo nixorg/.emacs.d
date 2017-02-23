@@ -29,9 +29,6 @@
 (global-hl-line-mode)
 (setq scroll-conservatively 100)
 
-(global-nlinum-mode 1)
-(setq nlinum-format " %3d ")
-
 ;; Theme settings
 (setq solarized-use-variable-pitch nil)
 (setq solarized-height-plus-1 1.0)
@@ -68,8 +65,8 @@
 
 (eval-after-load "nxml-mode"
   '(progn
-     (define-key nxml-mode-map (kbd "M-H") 'hs-hide-level)
-     (define-key nxml-mode-map (kbd "M-N") 'hs-toggle-hiding)
+     (define-key nxml-mode-map (kbd "M-H") 'my-hs-hide-level)
+     (define-key nxml-mode-map (kbd "M-N") 'my-hs-toggle-hiding)
      (define-key nxml-mode-map (kbd "M-0") 'hs-show-all)))
 
 ;; Ergoemacs like keys
@@ -102,6 +99,51 @@
 ))
 (global-set-key (kbd "<f13>") kde-function-keymap)
 
+;; Custom folding overlay
+(define-fringe-bitmap 'hs-marker [0 24 24 126 126 24 24 0])
+(defcustom hs-fringe-face 'hs-fringe-face
+  "*Specify face used to highlight the fringe on hidden regions."
+  :type 'face
+  :group 'hideshow)
+(defface hs-fringe-face
+  '((t (:foreground "#888" :box (:line-width 2 :color "grey75" :style released-button))))
+  "Face used to highlight the fringe on folded regions"
+  :group 'hideshow)
+(defcustom hs-face 'hs-face
+  "*Specify the face to to use for the hidden region indicator."
+  :type 'face
+  :group 'hideshow)
+(defface hs-face
+  '((t (:background "#93a1a1" :foreground "#002b36" :box t)))
+  "Face to hightlight the ... area of hidden regions"
+  :group 'hideshow)
+(defun display-code-line-counts (ov)
+  (when (eq 'code (overlay-get ov 'hs))
+    (let* ((marker-string "*fringe-dummy*")
+           (marker-length (length marker-string))
+           (display-string (format "(%d)..." (count-lines (overlay-start ov) (overlay-end ov))))
+           )
+      ;; On hover over the overlay display the hidden text.
+      (overlay-put ov 'help-echo (buffer-substring (overlay-start ov)
+ 		                      (overlay-end ov)))
+      (put-text-property 0 marker-length 'display (list 'left-fringe 'hs-marker 'hs-fringe-face) marker-string)
+      (overlay-put ov 'before-string marker-string)
+      (put-text-property 0 (length display-string) 'face 'hs-face display-string)
+      (overlay-put ov 'display display-string)
+      )))
+
+(setq hs-set-up-overlay 'display-code-line-counts)
+
+(defun my-hs-toggle-hiding (arg)
+  (interactive "p")
+  (save-excursion (hs-toggle-hiding))
+  )
+
+(defun my-hs-hide-level (arg)
+  (interactive "p")
+  (hs-hide-level 1)
+  )
+
 ;; Disable modal keys in minibuffer
 (defun my-minibuffer-setup-hook ()
   (xah-fly-keys 0))
@@ -127,6 +169,30 @@
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
+
+(use-package nlinum
+  :init
+  (progn
+    (setq nlinum-format " %3d ")
+    (add-hook 'prog-mode-hook 'nlinum-mode)
+    ;; (add-hook 'text-mode-hook 'nlinum-mode)
+    ))
+
+(use-package delight
+  :ensure t
+  :demand t)
+
+;; ;; Install code-folding
+;; (use-package hideshowvis
+;;   :ensure t
+;;   :config (progn 
+;;             (hideshowvis-symbols)
+;;             (bind-key "C-c h" 'hs-toggle-hiding)
+;;             (set-face-attribute 'hs-face nil
+;;                                 :box nil
+;;                                 :background (face-foreground 'default)
+;;                                 :foreground (face-background 'default))
+;;             (add-hook 'nxml-mode-hook 'hideshowvis-minor-mode)))
 
 (use-package try
   :ensure t)
@@ -376,16 +442,12 @@ Called via the `after-load-functions' special hook."
    ("s" . magit-status)
    ("r" . magit-refresh)
    ("c" . magit-commit)
+   ("p" . magit-push)
 ))
-
-
 
 (setq exec-path (append exec-path '("f:/app/cygwin/bin")))
 
+;; Add yasnippet support
 (yas-global-mode 1)
 
-(global-set-key (kbd "C-p") 'yas-expand)
-
-
-
-
+;; (ranger-override-dired-mode t)

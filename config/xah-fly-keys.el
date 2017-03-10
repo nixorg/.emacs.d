@@ -2467,7 +2467,8 @@ Version 2017-01-21"
    ("p" . kmacro-end-macro)
    ("r" . yank-rectangle)
    ("u" . xah-quote-lines)
-   ("y" . delete-whitespace-rectangle)))
+   ("y" . delete-whitespace-rectangle)
+   ("b" . kmacro-bind-to-key)))
 
 (xah-fly--define-keys
  (define-prefix-command 'xah-fly-t-keymap)
@@ -2571,7 +2572,7 @@ Version 2017-01-21"
    ("`" . nil)
 
    ("1" . nil)
-   ("2" . nil)
+   ("2" . rename-buffer)
    ("3" . delete-window)
    ("4" . split-window-right)
    ("5" . nil)
@@ -2579,7 +2580,7 @@ Version 2017-01-21"
    ("7" . nil)
    ("8" . nil)
    ("9" . ispell-word)
-   ("0" . nil)
+   ("0" . revert-buffer-no-confirm)
 
    ("a" . mark-whole-buffer)
    ("b" . end-of-buffer)
@@ -2842,7 +2843,7 @@ Version 2017-01-21"
    xah-fly-key-map
    '(
      ("~" . nil)
-     (":" . undo-tree-redo)
+     (":" . nil)
 
      ("SPC" . xah-fly-leader-key-map)
      ("DEL" . xah-fly-leader-key-map) ; for kinesis
@@ -2873,7 +2874,8 @@ Version 2017-01-21"
      ("0" . scroll-up-command)
 
      ("a" . helm-M-x)
-     ("b" . isearch-forward)
+     ("B" . vr/query-replace)
+     ("b" . vr/replace)
      ("c" . previous-line)
      ("d" . xah-beginning-of-line-or-block)
      ("e" . xah-delete-backward-char-or-bracket-text)
@@ -2963,6 +2965,7 @@ Version 2017-01-21"
 
      ("a" . nil)
      ("b" . nil)
+     ("B" . nil)
      ("c" . nil)
      ("d" . nil)
      ("e" . nil)
@@ -2989,6 +2992,7 @@ Version 2017-01-21"
      ("x" . nil)
      ("X" . nil)
      ("y" . nil)
+     ("Y" . nil)
      ("z" . nil)
 
      ;;

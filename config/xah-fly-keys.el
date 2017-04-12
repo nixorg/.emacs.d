@@ -412,9 +412,9 @@ Version 2016-06-18"
         (if current-prefix-arg
             (message "Buffer text copied")
           (message "Text copied"))))
-    (end-of-line)
-    (forward-char)
-    ))
+    (when (not (region-active-p))
+      (end-of-line)
+      (forward-char))))
 
 (defun xah-cut-line-or-region ()
   "Cut current line, or text selection.
@@ -2398,6 +2398,9 @@ Version 2017-01-21"
    ("s" . describe-syntax)
    ("u" . elisp-index-search)
    ("v" . apropos-value)
+   ("9" . google-translate-at-point)
+   ("0" . multitran-custom)
+   ("8" . thesaurus-choose-synonym-and-replace)
    ("z" . describe-coding-system)))
 
 (xah-fly--define-keys
@@ -2488,17 +2491,19 @@ Version 2017-01-21"
    ("d" . mark-defun)
    ("e" . list-matching-lines)
    ("u" . delete-matching-lines)
-   ("h" . goto-line)
+   ;; ("h" . goto-line)
+   ("h" . helm-register)
    ("i" . delete-non-matching-lines)
    ("j" . copy-to-register)
    ("k" . insert-register)
-   ("l" . increment-register)
+   ;; ("l" . increment-register)
    ("m" . xah-make-backup-and-save)
    ("n" . repeat-complex-command)
    ("p" . query-replace-regexp)
    ("r" . copy-rectangle-to-register)
    ("t" . repeat)
-   ("w" . xah-next-window-or-frame)
+   ("w" . window-configuration-to-register)
+   ;; ("w" . xah-next-window-or-frame)
    ("y" . delete-duplicate-lines)
    ("z" . number-to-register)))
 
@@ -2763,8 +2768,11 @@ Version 2017-01-21"
     (define-key xah-fly-key-map (kbd "<f11>") 'xah-previous-user-buffer)
     (define-key xah-fly-key-map (kbd "<f12>") 'xah-next-user-buffer)
     (define-key xah-fly-key-map (kbd "<C-f11>") 'xah-previous-emacs-buffer)
-    (define-key xah-fly-key-map (kbd "<C-f12>") 'xah-next-emacs-buffer))
+    (define-key xah-fly-key-map (kbd "<C-f12>") 'xah-next-emacs-buffer)
+    ;; (define-key xah-fly-key-map (kbd "C-<return>") 'my-new-line-and-indent)
+    )
 
+  
   (progn
     ;; set arrow keys in isearch. left/right is backward/forward, up/down is history. press Return to exit
     (define-key isearch-mode-map (kbd "<up>") 'isearch-ring-retreat )
@@ -2791,18 +2799,18 @@ Version 2017-01-21"
 
       (define-key xah-fly-key-map (kbd "C-1") 'xah-fly-keys)
 
-      (define-key xah-fly-key-map (kbd "C-9") 'scroll-down-command)
-      (define-key xah-fly-key-map (kbd "C-0") 'scroll-up-command)
+      ;(define-key xah-fly-key-map (kbd "C-9") 'scroll-down-command)
+      ;(define-key xah-fly-key-map (kbd "C-0") 'scroll-up-command)
 
       (define-key xah-fly-key-map (kbd "C-SPC") 'xah-fly-leader-key-map)
-
+      
       (define-key xah-fly-key-map (kbd "C-a") 'mark-whole-buffer)
       (define-key xah-fly-key-map (kbd "C-n") 'xah-new-empty-buffer)
       (define-key xah-fly-key-map (kbd "C-S-n") 'make-frame-command)
       (define-key xah-fly-key-map (kbd "C-o") 'find-file)
       (define-key xah-fly-key-map (kbd "C-s") 'save-buffer)
-      (define-key xah-fly-key-map (kbd "C-S-s") 'write-file)
-      (define-key xah-fly-key-map (kbd "C-S-t") 'xah-open-last-closed)
+      ;; (define-key xah-fly-key-map (kbd "C-S-s") 'write-file)
+      ;; (define-key xah-fly-key-map (kbd "C-S-t") 'xah-open-last-closed)
       (define-key xah-fly-key-map (kbd "C-v") 'yank)
       (define-key xah-fly-key-map (kbd "C-w") 'xah-close-current-buffer)
       (define-key xah-fly-key-map (kbd "C-z") 'undo)
@@ -2812,6 +2820,7 @@ Version 2017-01-21"
       ;; (define-key xah-fly-key-map (kbd "C-0") (lambda () (interactive) (text-scale-set 0)))
 
       (define-key xah-fly-key-map (kbd "C-r") 'hippie-expand)
+      (define-key xah-fly-key-map (kbd "C-;") 'xah-comment-dwim)
       (define-key xah-fly-key-map (kbd "C-t") 'xah-toggle-letter-case) ; never do transpose-chars
       ;;
       ))
@@ -2858,9 +2867,10 @@ Version 2017-01-21"
      ("=" . xah-forward-equal-sign)
      ("[" . xah-backward-quote )
      ("]" . xah-forward-quote-smart)
-     ("`" . other-frame)
+     ("`" . eval-defun)
      ("*" . mc/mark-next-like-this)
-
+     ("<" . highlight-symbol-next)
+     
      ("1" . pop-global-mark)
      ("2" . xah-pop-local-mark-ring)
      ("3" . xah-unplit-window-or-next-frame)
@@ -2874,35 +2884,87 @@ Version 2017-01-21"
      ("0" . scroll-up-command)
 
      ("a" . helm-M-x)
-     ("B" . vr/query-replace)
-     ("b" . vr/replace)
+     ("ф" . helm-M-x)
+
+     ("+" . vr/query-replace)
+
+     ("B" . dumb-jump-back)
+     ("Т" . dumb-jump-back)
+
+     ("5" . vr/replace)
+
+     ("b" . dumb-jump-go)
+     ("т" . dumb-jump-go)
+     
      ("c" . previous-line)
+     ("ш" . previous-line)
      ("d" . xah-beginning-of-line-or-block)
+     ("р" . xah-beginning-of-line-or-block)
      ("e" . xah-delete-backward-char-or-bracket-text)
+     ("в" . xah-delete-backward-char-or-bracket-text)
      ("f" . isearch-forward)
+     ("н" . isearch-forward)
      ("g" . backward-word)
+     ("г" . backward-word)
      ("h" . backward-char)
+     ("о" . backward-char)
      ("i" . avy-goto-char)
+     ("п" . avy-goto-char)
      ("j" . xah-copy-line-or-region)
+     ("с" . xah-copy-line-or-region)
      ("k" . xah-paste-or-paste-previous)
-     ("l" . xah-fly-insert-mode-activate-space-before)
+     ("м" . xah-paste-or-paste-previous)
+     ("l" . recenter-top-bottom)
+     ("з" . recenter-top-bottom)
+
      ("m" . xah-backward-left-bracket)
+     ("ь" . xah-backward-left-bracket)
+
+     ("M" . beginning-of-defun)
+     ("Ь" . beginning-of-defun)
+
      ("n" . forward-char)
-     ("o" . open-line)
+     ("д" . forward-char)
+     ("o" . my-new-line-and-indent)
+     ("O" . my-new-line-and-indent-above)
+     ("ы" . my-new-line-and-indent)
+     ("Ы" . my-new-line-and-indent-above)
      ("p" . replace-char)
+     ("к" . replace-char)
      ("q" . xah-cut-line-or-region)
+     ("ч" . xah-cut-line-or-region)
      ("r" . forward-word)
+     ("щ" . forward-word)
      ("s" . xah-end-of-line-or-block)
+     ("ж" . xah-end-of-line-or-block)
      ("t" . next-line)
+     ("л" . next-line)
      ("u" . xah-fly-insert-mode-activate)
+     ("а" . xah-fly-insert-mode-activate)
+
      ("v" . xah-forward-right-bracket)
+     ("ю" . xah-forward-right-bracket)
+
+     ("V" . end-of-defun)
+     ("Ю" . end-of-defun)
+
      ("w" . xah-next-window-or-frame)
+     ("б" . xah-next-window-or-frame)
+
+     ("W" . kill-buffer-and-window)
+     ("Б" . kill-buffer-and-window)
+
      ("x" . helm-bookmarks)
+     ("и" . helm-bookmarks)
      ("y" . set-mark-command)
+     ("е" . set-mark-command)
      ("z" . xah-goto-matching-bracket)
+     ("." . backward-kill-word)
 
      ("F" . isearch-backward)
+     ("Н" . isearch-backward)
      ("X" . bookmark-set)
+     ("И" . bookmark-set)
      ))
 
   ;; (define-key xah-fly-key-map (kbd "a") (if (fboundp 'smex) 'smex 'execute-extended-command ))
@@ -2950,7 +3012,10 @@ Version 2017-01-21"
      ("&" . nil)
      ("\"" . nil)     
      (":" . nil)
+     ("+" . nil)
      ("*" . nil)     
+     ("<" . nil)
+     (">" . nil)     
      ("1" . nil)
      ("2" . nil)
      ("3" . nil)
@@ -2989,12 +3054,48 @@ Version 2017-01-21"
      ("u" . nil)
      ("v" . nil)
      ("w" . nil)
+     ("W" . nil)
      ("x" . nil)
      ("X" . nil)
      ("y" . nil)
      ("Y" . nil)
      ("z" . nil)
 
+     ("а" . nil)
+     ("б" . nil)
+     ("Б" . nil)
+     ("в" . nil)
+     ("г" . nil)
+     ("д" . nil)
+     ("е" . nil)
+     ("ж" . nil)
+     ("з" . nil)
+     ("и" . nil)
+     ("к" . nil)
+     ("л" . nil)
+     ("м" . nil)
+     ("н" . nil)
+     ("о" . nil)
+     ("п" . nil)
+     ("р" . nil)
+     ("с" . nil)
+     ("т" . nil)
+     ("у" . nil)
+     ("ф" . nil)
+     ("х" . nil)
+     ("ц" . nil)
+     ("ч" . nil)
+	 ("ш" . nil)
+	 ("щ" . nil)
+     ("ь" . nil)
+     ("ы" . nil)
+     ("ъ" . nil)
+     ("э" . nil)
+     ("ю" . nil)
+     ("я" . nil)
+     
+     
+     
      ;;
      )))
 

@@ -1,5 +1,7 @@
 ﻿;; Package settings
 (require 'package)
+(server-start)
+
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/")   t)
 (package-initialize)
@@ -25,13 +27,8 @@
 (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (add-to-list 'initial-frame-alist '(font . "Fira Mono 10"))
-					;(set-face-font 'default "Fira Mono-11:antialias=none")
-					;(set-face-font 'default "Fira Mono-11:antialias=subpixel")
-					;(set-face-attribute 'default nil :height 115 :family "Consolas")
-					;(set-face-font 'default "Fira Mono-11:antialias=natural")
-					;(set-face-font 'default "Fira Mono-11:antialias=standard")
+
 (setq make-backup-files nil)
-(setq auto-save-list-file-name nil)
 (setq auto-save-default nil)
 
 (show-paren-mode 1)
@@ -68,11 +65,11 @@
 (define-key xah-fly-key-map (kbd "C-r") 'find-file)
 (define-key xah-fly-key-map (kbd "C-k") 'yank)
 
-(global-set-key (kbd "M-]") 'text-scale-increase)
-(global-set-key (kbd "M-[") 'text-scale-decrease)
+(global-set-key (kbd "C-0") 'text-scale-increase)
+(global-set-key (kbd "C-9") 'text-scale-decrease)
 
-(define-key isearch-mode-map (kbd "M-c") 'isearch-repeat-backward)
-(define-key isearch-mode-map (kbd "M-t") 'isearch-repeat-forward)
+(define-key isearch-mode-map (kbd "<up>") 'isearch-repeat-backward)
+(define-key isearch-mode-map (kbd "<down>") 'isearch-repeat-forward)
 
 
 (define-key minibuffer-local-map (kbd "M-n") 'nil)
@@ -80,11 +77,14 @@
 (define-key minibuffer-local-map (kbd "M-H") 'previous-history-element)
 (define-key minibuffer-local-map (kbd "M-N") 'next-history-element)
 
+(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+(add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+
 (eval-after-load "nxml-mode"
   '(progn
-     (define-key nxml-mode-map (kbd "M-H") 'my-hs-hide-level)
-     (define-key nxml-mode-map (kbd "M-N") 'my-hs-toggle-hiding)
-     (define-key nxml-mode-map (kbd "M-0") 'hs-show-all)))
+     (define-key nxml-mode-map (kbd "H") 'my-hs-hide-level)
+     (define-key nxml-mode-map (kbd "N") 'my-hs-toggle-hiding)
+     (define-key nxml-mode-map (kbd "C-0") 'hs-show-all)))
 
 ;;; test stuff
 (defun custom-commands ()
@@ -245,17 +245,26 @@
 (use-package helm
   :ensure t
   :config
+  (helm-mode)
   (setq helm-split-window-in-side-p t)
   ;(setq helm-move-to-line-cycle-in-source t)
   (setq helm-autoresize-max-height 0)
   (setq helm-autoresize-min-height 40)
   (helm-autoresize-mode 1)
-  :bind (("M-f" . helm-occur) 
+  :bind (("C-f" . helm-occur) 
 	 :map helm-map
 	 ("M-c" . helm-previous-line)
 	 ("M-t" . helm-next-line)
 	 :map xah-fly-key-map
 	 ("C-r" . helm-find-files)))
+
+(use-package helm-descbinds
+  :ensure t
+  :config (helm-descbinds-mode))
+
+(use-package helm-describe-modes
+  :ensure t
+  :config (global-set-key [remap describe-mode] #'helm-describe-modes))
 
 (use-package which-key
   :ensure t
@@ -272,7 +281,18 @@
   :bind (:map paredit-mode-map
 	      (";" . nil)
 	      (":" . nil)
-	      ("M-;" . nil)))
+	      ("M-;" . nil))
+  :config
+  (define-key paredit-mode-map (kbd "C-S-r") 'paredit-forward)
+  (define-key paredit-mode-map (kbd "C-S-g") 'paredit-backward)
+  (define-key paredit-mode-map (kbd "C-S-t") 'paredit-forward-up)
+  (define-key paredit-mode-map (kbd "C-S-c") 'paredit-backward-up)
+  (define-key paredit-mode-map (kbd "C-<return>") 'paredit-close-new-line-custom)
+  
+  (defun paredit-close-new-line-custom ()
+    (interactive)
+    (paredit-close-round)
+    (newline-and-indent)))
 
 (use-package multiple-cursors
   :ensure t
@@ -282,7 +302,7 @@
     (global-set-key (kbd "C-8") 'mc/mark-all-like-this)
     (global-set-key (kbd "M-8") 'vr/mc-mark)))
 
-(global-set-key (kbd "C-f") 'phi-search)
+;; (global-set-key (kbd "C-f") 'phi-search)
 ;; (global-set-key (kbd "C-F") 'phi-search-backward)
 ;; (global-set-key (kbd "C-F") 'phi-search-again-or-next)
 
@@ -351,7 +371,7 @@
 
 (defun paste-xml ()
   (interactive)
-  (my-large-file-mode)
+  (large-file-mode)
   (xah-paste-or-paste-previous)
   (indent-xml))
 
@@ -363,7 +383,7 @@
   "If buffer too large and my cause performance issue."
   (< large-file-warning-threshold (buffer-size)))
 
-(define-derived-mode my-large-file-mode fundamental-mode "LargeFile"
+(define-derived-mode large-file-mode fundamental-mode "LargeFile"
   "Fixes performance issues in Emacs for large files."
   ;; (setq buffer-read-only t)
   (setq bidi-display-reordering nil)
@@ -371,9 +391,9 @@
   ;; (buffer-disable-undo)
   (set (make-variable-buffer-local 'global-hl-line-mode) nil)
   (set (make-variable-buffer-local 'line-number-mode) nil)
-  (set (make-variable-buffer-local 'column-number-mode) nil) )
+  (set (make-variable-buffer-local 'column-number-mode) nil))
 
-(add-to-list 'magic-mode-alist (cons #'my--is-file-large #'my-large-file-mode))
+(add-to-list 'magic-mode-alist (cons #'my--is-file-large #'large-file-mode))
 
 (defadvice xah-paste-or-paste-previous (before large-file-paste activate)
   (large-file-paste))
@@ -385,7 +405,7 @@
     (setq len (length text))
     (message "length %d" len)
     (if (> len 10000)
-	(my-large-file-mode))))
+	(large-file-mode))))
 
 ;; Company
 (use-package company
@@ -404,7 +424,7 @@
     (add-hook 'after-init-hook 'global-company-mode)
     ))
 
-
+				   
 (use-package expand-region
   :ensure t)
 
@@ -413,7 +433,8 @@
 ;; 			     describe-keymap describe-option describe-option-of-type))
 
 (use-package help-fns+
-  :ensure t)
+  :ensure t
+  :disabled)
 
 ;; (use-package ace-jump-mode
 ;;   :ensure t
@@ -437,6 +458,7 @@
  '(
    ("e" . org-edit-special)
    ("a" . org-agenda)
+   ("t" . org-toggle-checkbox)
    ))
 
 (defun replace-char (arg)
@@ -445,6 +467,13 @@
     (read-char-exclusive)))
   (delete-char 1)
   (insert arg))
+
+(use-package smartparens
+  :ensure t
+  :config
+  (add-hook 'python-mode-hook #'smartparens-mode)
+  )
+
 
 ;; Python config
 (defun my/python-mode-hook ()
@@ -457,7 +486,7 @@
   (progn 
     (elpy-enable)
     (setq Exec-path (append exec-path '("c:/Program Files (x86)/Python/Python36-32/Scripts")))
-    ;; (elpy-use-ipython)
+    (elpy-use-ipython)
     (setq elpy-rpc-backend "jedi")
     ))
 
@@ -478,7 +507,9 @@
 
 (setq prelude-personal-python-mode-hook 'prelude-personal-python-mode-defaults)
 
+
 (add-hook 'python-mode-hook (lambda ()
+			      ;(electric-pair-mode 1) 
                               (run-hooks 'prelude-personal-python-mode-hook)))
 
 (defun xah-display-minor-mode-key-priority  ()
@@ -519,6 +550,7 @@ Called via the `after-load-functions' special hook."
 
 ;; Add yasnippet support
 (yas-global-mode 1)
+(define-key yas-keymap (kbd "C-d") 'yas-skip-and-clear-or-delete-char)
 
 ;; ediff settings
 (defmacro csetq (variable value)
@@ -574,18 +606,22 @@ Called via the `after-load-functions' special hook."
 (use-package visual-regexp
   :ensure t)
 (use-package visual-regexp-steroids
+  :ensure t
+  :config
+  (setq vr/engine 'pcre2el))
+(use-package pcre2el
   :ensure t)
 
-;; (use-package spaceline
-;;   :ensure t
-;;   :config
-;;   (progn 
-;;     (require 'spaceline-config)
-;;     (spaceline-emacs-theme)
-;;     (spaceline-helm-mode)
-;;     (setq powerline-default-separator 'wave)
-;;     (spaceline-compile)
-;;     ))
+(use-package spaceline
+  :ensure t
+  :config
+  (progn 
+    (require 'spaceline-config)
+    ;; (spaceline-emacs-theme)
+    (spaceline-helm-mode)
+    ;; (setq powerline-default-separator 'wave)
+    (spaceline-compile)
+    ))
 
 (defmacro diminish-major-mode (mode-hook abbrev)
   `(add-hook ,mode-hook
@@ -608,8 +644,8 @@ Called via the `after-load-functions' special hook."
   :ensure t)
 
 (use-package dired+
-  :ensure t
-  :config
+ :ensure t
+ :config
   (setq ls-lisp-dirs-first t))
 
 (use-package tramp-hdfs
@@ -735,10 +771,10 @@ Called via the `after-load-functions' special hook."
 (defun mode-icon (face-value)
   (let ((family (all-the-icons-icon-family-for-buffer))
 	(icon   (all-the-icons-icon-for-buffer)))
-    (if (symbolp icon)
-        (propertize (symbol-name icon)
-                    'face `(:height 0.8 :inherit package-status-external)
-                    'display '(raise 0.1))
+    (if (not (symbolp icon))
+        ;; (propertize (symbol-name icon)
+                    ;; 'face `(:height 0.8 :inherit ,face-value)
+                    ;; 'display '(raise 0.1))
       (propertize icon
 		  'face `(:height 1.1 :family ,family :inherit ,face-value)
 		  'display '(raise 0.0)
@@ -775,4 +811,57 @@ Called via the `after-load-functions' special hook."
 (defun xah-get-current-mode-str ()
   (if xah-fly-insert-state-q "INSERT  " "COMMAND "))
 
+(use-package auto-highlight-symbol
+  :ensure t
+  :config
+  (global-auto-highlight-symbol-mode t))
 
+(use-package highlight-symbol
+  :ensure t)
+
+(use-package google-translate
+  :ensure t
+  :config
+  (setq google-translate-default-source-language "en")
+ (setq google-translate-default-target-language "ru"))
+
+(use-package multitran
+  :ensure t)
+
+(defun multitran-custom ()
+  (interactive)
+  (multitran--word (thing-at-point 'word)))
+
+(use-package thesaurus
+  :ensure t
+  :config
+  (setq thesaurus-bhl-api-key "72dd7311ba167ef0ae7d2c1585959e6b")
+
+  (defun thesaurus-fetch-synonyms (word)
+    "fetch synonyms for the given word, from a remote source."
+    (let ((synonym-list nil)
+	  (buf (thesaurus-get-buffer-for-word word)))
+      (if buf
+	  (progn
+	    (with-current-buffer buf
+	      (rename-buffer (concat "*thesaurus* - " word) t)
+	      (goto-char (point-min))
+	      (thesaurus-process-http-headers)
+	      (while (not (= (point-min) (point-max)))
+		(let ((elt (thesaurus-parse-one-line)))
+		  (if elt
+		      (add-to-list 'synonym-list elt)))))
+	    (kill-buffer buf)
+	    (nreverse synonym-list)
+	    )))))
+
+(defun my-new-line-and-indent ()
+  (interactive)
+  (move-end-of-line 1)
+  (newline-and-indent))
+
+(defun my-new-line-and-indent-above ()
+  (interactive)
+  (beginning-of-line)
+  (open-line 1)
+  (indent-according-to-mode))

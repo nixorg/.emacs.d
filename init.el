@@ -1,5 +1,4 @@
-﻿;; Package settings
-(require 'package)
+﻿(require 'package)
 (server-start)
 
 (setq package-enable-at-startup nil)
@@ -68,8 +67,16 @@
 (global-set-key (kbd "C-0") 'text-scale-increase)
 (global-set-key (kbd "C-9") 'text-scale-decrease)
 
-(define-key isearch-mode-map (kbd "<up>") 'isearch-repeat-backward)
-(define-key isearch-mode-map (kbd "<down>") 'isearch-repeat-forward)
+(progn
+  ;; set arrow keys in isearch. left/right is backward/forward, up/down is history. press Return to exit
+  (define-key isearch-mode-map (kbd "<left>") 'isearch-ring-retreat )
+  (define-key isearch-mode-map (kbd "<right>") 'isearch-ring-advance )
+
+  (define-key isearch-mode-map (kbd "<up>") 'isearch-repeat-backward)
+  (define-key isearch-mode-map (kbd "<down>") 'isearch-repeat-forward)
+
+  (define-key minibuffer-local-isearch-map (kbd "<left>") 'isearch-reverse-exit-minibuffer)
+  (define-key minibuffer-local-isearch-map (kbd "<right>") 'isearch-forward-exit-minibuffer))
 
 
 (define-key minibuffer-local-map (kbd "M-n") 'nil)
@@ -96,9 +103,9 @@
 ;; (add-hook 'xah-fly-command-mode-activate-hook 'custom-commands)
 
 ;; Ergoemacs like keys
-(global-set-key (kbd "M-c") 'previous-line)
-(global-set-key (kbd "M-h") 'backward-char)
-(global-set-key (kbd "M-t") 'next-line)
+;; (global-set-key (kbd "M-c") 'previous-line)
+;; (global-set-key (kbd "M-h") 'backward-char)
+;; (global-set-key (kbd "M-t") 'next-line)
 (global-set-key (kbd "M-n") 'forward-char)
 (global-set-key (kbd "M-g") 'backward-word)
 (global-set-key (kbd "M-r") 'forward-word)
@@ -108,13 +115,13 @@
 (global-set-key (kbd "M-u") 'delete-forward-char)
 (global-set-key (kbd "M-.") 'backward-kill-word)
 (global-set-key (kbd "M-p") 'kill-word)
-(global-set-key (kbd "M-C") 'move-text-up)
-(global-set-key (kbd "M-T") 'move-text-down)
+(global-set-key (kbd "M-c") 'move-line-up)
+(global-set-key (kbd "M-t") 'move-line-down)
 (global-set-key (kbd "M-k") 'xah-paste-or-paste-previous)
 (global-set-key (kbd "M-j") 'xah-copy-line-or-region)
 (global-set-key (kbd "M-;") 'undo)
-(global-set-key (kbd "M-:") 'undo-tree-redo)
 (global-set-key (kbd "M-z") 'xah-comment-dwim)
+(global-set-key (kbd "M-:") 'undo-tree-redo)
 
 (require 'winner)
 (winner-mode 1)
@@ -283,6 +290,10 @@
 	      (":" . nil)
 	      ("M-;" . nil))
   :config
+  (define-key paredit-mode-map (kbd "C-,") 'paredit-wrap-round)  
+  (define-key paredit-mode-map (kbd "C-<") 'paredit-forward-barf-sexp)  
+  (define-key paredit-mode-map (kbd "C->") 'paredit-forward-slurp-sexp)  
+  (define-key paredit-mode-map (kbd "C-p") 'paredit-raise-sexp)
   (define-key paredit-mode-map (kbd "C-S-r") 'paredit-forward)
   (define-key paredit-mode-map (kbd "C-S-g") 'paredit-backward)
   (define-key paredit-mode-map (kbd "C-S-t") 'paredit-forward-up)
@@ -306,39 +317,61 @@
 ;; (global-set-key (kbd "C-F") 'phi-search-backward)
 ;; (global-set-key (kbd "C-F") 'phi-search-again-or-next)
 
-;; Custom defuns
-(defun move-text-internal (arg)
-  (cond
-   ((and mark-active transient-mark-mode)
-    (if (> (point) (mark))
-	(exchange-point-and-mark))
-    (let ((column (current-column))
-	  (text (delete-and-extract-region (point) (mark))))
-      (forward-line arg)
-      (move-to-column column t)
-      (set-mark (point))
-      (insert text)
-      (exchange-point-and-mark)
-      (setq deactivate-mark nil)))
-   (t
-    (beginning-of-line)
-    (when (or (> arg 0) (not (bobp)))
-      (forward-line)
-      (when (or (< arg 0) (not (eobp)))
-	(transpose-lines arg))
-      (forward-line -1)))))
+(defmacro save-column (&rest body)
+  `(let ((column (current-column)))
+     (unwind-protect
+         (progn ,@body)
+       (move-to-column column))))
+(put 'save-column 'lisp-indent-function 0)
 
-(defun move-text-down (arg)
-  "Move region (transient-mark-mode active) or current line
-  arg lines down."
-  (interactive "*p")
-  (move-text-internal arg))
+(defun move-line-up ()
+  (interactive)
+  (save-column
+    (transpose-lines 1)
+    (forward-line -2)))
 
-(defun move-text-up (arg)
-  "Move region (transient-mark-mode active) or current line
-  arg lines up."
-  (interactive "*p")
-  (move-text-internal (- arg)))
+(defun move-line-down ()
+  (interactive)
+  (save-column
+    (forward-line 1)
+    (transpose-lines 1)
+    (forward-line -1)))
+
+
+;; ;; Custom defuns
+;; (defun move-text-internal (arg)
+;;   (cond
+;;    ((and mark-active transient-mark-mode)
+;;     (if (> (point) (mark))
+;; 	(exchange-point-and-mark))
+;;     (let ((column (current-column))
+;; 	  (text (delete-and-extract-region (point) (mark))))
+;;       (forward-line arg)
+;;       (move-to-column column t)
+;;       (set-mark (point))
+;;       (insert text)
+;;       (exchange-point-and-mark)
+;;       (setq deactivate-mark nil)))
+;;    (t
+;;     (beginning-of-line)
+;;     (when (or (> arg 0) (not (bobp)))
+;;       (message "forward %s" arg)
+;;       (forward-line)
+;;       (when (or (< arg 0) (not (eobp)))
+;; 	(transpose-lines arg))
+;;       (forward-line -1)))))
+
+;; (defun move-text-down (arg)
+;;   "Move region (transient-mark-mode active) or current line
+;;   arg lines down."
+;;   (interactive "*p")
+;;   (move-text-internal arg))
+
+;; (defun move-text-up (arg)
+;;   "Move region (transient-mark-mode active) or current line
+;;   arg lines up."
+;;   (interactive "*p")
+;;   (move-text-internal (- arg)))
 
 ;; XML
 (add-to-list 'hs-special-modes-alist
@@ -413,13 +446,15 @@
   :config
   (progn
     (with-eval-after-load 'company
+      (company-quickhelp-mode)
+      (setq company-quickhelp-delay 1.0)
       (define-key company-active-map (kbd "M-b") nil)
       (define-key company-active-map (kbd "M-l") nil)
       (define-key company-active-map (kbd "C-o") nil)
       (define-key company-active-map (kbd "M-t") #'company-select-next)
       (define-key company-active-map (kbd "M-c") #'company-select-previous)
       (define-key company-active-map (kbd "M-f") #'company-search-candidates))
-    (global-set-key (kbd "M-y") 'company-complete)
+    (global-set-key (kbd "C-y") 'company-complete)
 
     (add-hook 'after-init-hook 'global-company-mode)
     ))
@@ -449,7 +484,7 @@
 	      (define-key org-mode-map (kbd "M-H") 'org-metaleft)
 	      (define-key org-mode-map (kbd "M-N") 'org-metaright))))
 (setq org-src-tab-acts-natively t)
-(setq org-agenda-files '("f:/datalex/org/"))
+(setq org-agenda-files '("d:/datalex/doc/org/"))
 (setq org-log-done 'time)
 (setq org-src-fontify-natively t)
 
@@ -485,7 +520,7 @@
   :config
   (progn 
     (elpy-enable)
-    (setq Exec-path (append exec-path '("c:/Program Files (x86)/Python/Python36-32/Scripts")))
+    ;;(setq Exec-path (append exec-path '("c:/Program Files (x86)/Python3/Scripts")))
     (elpy-use-ipython)
     (setq elpy-rpc-backend "jedi")
     ))
@@ -496,6 +531,7 @@
   "Personal defaults for Python programming."
   ;; Enable elpy mode
   (elpy-mode)
+  (smartparens-mode)
   ;; Jedi backend
   ;; (jedi:setup)
   ;; (setq jedi:complete-on-dot t) ;optional
@@ -503,7 +539,7 @@
   ;; (jedi:ac-setup)
 					;(setq elpy-rpc-python-command "python3")
   ;; (python-shell-interpreter "ipython3")
-  (company-quickhelp-mode))
+  )
 
 (setq prelude-personal-python-mode-hook 'prelude-personal-python-mode-defaults)
 
@@ -546,7 +582,7 @@ Called via the `after-load-functions' special hook."
    ("p" . magit-push)
    ))
 
-(setq exec-path (append exec-path '("f:/app/cygwin/bin")))
+;(setq exec-path (append exec-path '("d:/app/cygwin/bin")))
 
 ;; Add yasnippet support
 (yas-global-mode 1)
@@ -865,3 +901,67 @@ Called via the `after-load-functions' special hook."
   (beginning-of-line)
   (open-line 1)
   (indent-according-to-mode))
+
+(use-package js2-mode
+  :ensure t
+  :config
+  (add-hook 'js2-mode-hook 'skewer-mode)
+  (add-hook 'js2-mode-hook 'smartparens-mode))
+
+(use-package skewer-mode
+  :ensure t)
+
+(defun custom-eval-single ()
+  (interactive)
+  (if (or
+       (string-equal major-mode "xah-elisp-mode")
+       (string-equal major-mode "emacs-lisp-mode")
+       (string-equal major-mode "lisp-mode")
+       (string-equal major-mode "lisp-interaction-mode")
+       (string-equal major-mode "common-lisp-mode")
+       (string-equal major-mode "clojure-mode")
+       (string-equal major-mode "xah-clojure-mode")
+       (string-equal major-mode "scheme-mode"))
+      (eval-defun nil)
+    (if (eq major-mode 'js2-mode)	
+	(skewer-load-buffer))
+    (if (eq major-mode 'python-mode)	
+	(elpy-shell-send-region-or-buffer))))
+
+(defun custom-eval-double ()
+  (interactive)
+  (if (or
+       (string-equal major-mode "xah-elisp-mode")
+       (string-equal major-mode "emacs-lisp-mode")
+       (string-equal major-mode "lisp-mode")
+       (string-equal major-mode "lisp-interaction-mode")
+       (string-equal major-mode "common-lisp-mode")
+       (string-equal major-mode "clojure-mode")
+       (string-equal major-mode "xah-clojure-mode")
+       (string-equal major-mode "scheme-mode"))
+      (eval-region (region-beginning) (region-end) t)
+    (if (eq major-mode 'js2-mode)	
+	(skewer-eval-last-expression))
+    (if (eq major-mode 'python-mode)	
+	(elpy-shell-send-current-statement))))
+
+(use-package key-chord
+  :ensure t
+  :config
+  (key-chord-mode 1)
+  (key-chord-define xah-fly-key-map "``" 'custom-eval-double))
+
+(use-package flycheck
+  :ensure t
+  :config
+  (global-flycheck-mode))
+
+(use-package corral
+  :ensure t)
+
+(use-package popwin
+  :ensure t
+  :config
+  (popwin-mode 1)
+  (push "*multitran*" popwin:special-display-config))
+

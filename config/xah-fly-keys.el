@@ -2561,8 +2561,8 @@ Version 2017-01-21"
  (define-prefix-command 'xah-fly-leader-key-map)
  '(
    ("SPC" . xah-fly-insert-mode-activate)
-   ("DEL" . xah-close-current-buffer)
-   ("RET" . eval-region)
+   ("DEL" . xah-close-Current-buffer)
+   ("RET" . custom-eval-double)
    ("TAB" . xah-fly--tab-key-map)
 
    ("." . xah-fly-dot-keymap)
@@ -2771,20 +2771,9 @@ Version 2017-01-21"
     (define-key xah-fly-key-map (kbd "<C-f12>") 'xah-next-emacs-buffer)
     ;; (define-key xah-fly-key-map (kbd "C-<return>") 'my-new-line-and-indent)
     )
-
   
-  (progn
-    ;; set arrow keys in isearch. left/right is backward/forward, up/down is history. press Return to exit
-    (define-key isearch-mode-map (kbd "<up>") 'isearch-ring-retreat )
-    (define-key isearch-mode-map (kbd "<down>") 'isearch-ring-advance )
-
-    (define-key isearch-mode-map (kbd "<left>") 'isearch-repeat-backward)
-    (define-key isearch-mode-map (kbd "<right>") 'isearch-repeat-forward)
-
-    (define-key minibuffer-local-isearch-map (kbd "<left>") 'isearch-reverse-exit-minibuffer)
-    (define-key minibuffer-local-isearch-map (kbd "<right>") 'isearch-forward-exit-minibuffer)
-    ;;
-    )
+  
+  
   ;;
   (when xah-fly-use-control-key
     (progn
@@ -2797,9 +2786,16 @@ Version 2017-01-21"
       (define-key xah-fly-key-map (kbd "<C-tab>") 'xah-next-user-buffer)
       (define-key xah-fly-key-map (kbd "<C-S-iso-lefttab>") 'xah-previous-user-buffer)
 
-      (define-key xah-fly-key-map (kbd "C-1") 'xah-fly-keys)
+      (global-set-key (kbd "C-1") 'xah-fly-keys)
 
-      ;(define-key xah-fly-key-map (kbd "C-9") 'scroll-down-command)
+      (define-key xah-fly-key-map (kbd "C-.") 'sp-slurp-hybrid-sexp)
+      ;; (define-key xah-fly-key-map (kbd "C-.") 'corral-parentheses-forward)
+      (define-key xah-fly-key-map (kbd "C-,") 'corral-parentheses-backward)
+      (define-key xah-fly-key-map (kbd "C-e") 'sp-splice-sexp)
+      
+      (define-key xah-fly-key-map (kbd "C-t") 'my-new-line-and-indent)
+      ;; (define-key xah-fly-key-map (kbd "C-c") 'my-new-line-and-indent-above)      
+					;(define-key xah-fly-key-map (kbd "C-9") 'scroll-down-command)
       ;(define-key xah-fly-key-map (kbd "C-0") 'scroll-up-command)
 
       (define-key xah-fly-key-map (kbd "C-SPC") 'xah-fly-leader-key-map)
@@ -2821,7 +2817,7 @@ Version 2017-01-21"
 
       (define-key xah-fly-key-map (kbd "C-r") 'hippie-expand)
       (define-key xah-fly-key-map (kbd "C-;") 'xah-comment-dwim)
-      (define-key xah-fly-key-map (kbd "C-t") 'xah-toggle-letter-case) ; never do transpose-chars
+      ;;(define-key xah-fly-key-map (kbd "C-t") 'xah-toggle-letter-case) ; never do transpose-chars
       ;;
       ))
 
@@ -2867,7 +2863,7 @@ Version 2017-01-21"
      ("=" . xah-forward-equal-sign)
      ("[" . xah-backward-quote )
      ("]" . xah-forward-quote-smart)
-     ("`" . eval-defun)
+     ("`" . custom-eval-single)
      ("*" . mc/mark-next-like-this)
      ("<" . highlight-symbol-next)
      
@@ -3044,6 +3040,7 @@ Version 2017-01-21"
      ("k" . nil)
      ("l" . nil)
      ("m" . nil)
+     ("M" . nil)
      ("n" . nil)
      ("o" . nil)
      ("p" . nil)
@@ -3085,8 +3082,8 @@ Version 2017-01-21"
      ("х" . nil)
      ("ц" . nil)
      ("ч" . nil)
-	 ("ш" . nil)
-	 ("щ" . nil)
+     ("ш" . nil)
+     ("щ" . nil)
      ("ь" . nil)
      ("ы" . nil)
      ("ъ" . nil)
@@ -3094,8 +3091,38 @@ Version 2017-01-21"
      ("ю" . nil)
      ("я" . nil)
      
-     
-     
+     ("А" . nil)
+     ("Б" . nil)
+     ("В" . nil)
+     ("Г" . nil)
+     ("Д" . nil)
+     ("Е" . nil)
+     ("Ж" . nil)
+     ("З" . nil)
+     ("И" . nil)
+     ("К" . nil)
+     ("Л" . nil)
+     ("М" . nil)
+     ("Н" . nil)
+     ("О" . nil)
+     ("П" . nil)
+     ("Р" . nil)
+     ("С" . nil)
+     ("Т" . nil)
+     ("У" . nil)
+     ("Ф" . nil)
+     ("Х" . nil)
+     ("Ц" . nil)
+     ("Ч" . nil)
+     ("Ш" . nil)
+     ("Щ" . nil)
+     ("Ь" . nil)
+     ("Ы" . nil)
+     ("Ъ" . nil)
+     ("Э" . nil)
+     ("Ю" . nil)
+     ("Я" . nil)
+
      ;;
      )))
 

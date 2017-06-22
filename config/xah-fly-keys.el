@@ -2339,6 +2339,8 @@ Version 2017-01-21"
    ("r" . indent-region)
    ("s" . indent-sexp)
 
+   ("t" . transpose-words)
+   
    ;; temp
    ("1" . abbrev-prefix-mark)
    ("2" . edit-abbrevs)
@@ -2456,22 +2458,23 @@ Version 2017-01-21"
  ;; kinda replacement related
  (define-prefix-command 'xah-fly-r-keymap)
  '(
-   ("SPC" . rectangle-mark-mode)
+   ("y" . rectangle-mark-mode)
    ("," . apply-macro-to-region-lines)
    ("." . kmacro-start-macro)
    ("a" . xah-upcase-sentence)
    ("c" . replace-rectangle)
-   ("d" . delete-rectangle)
-   ("e" . call-last-kbd-macro)
-   ("g" . kill-rectangle)
+   ("e" . delete-rectangle)
+   ("SPC" . call-last-kbd-macro)
+   ("q" . kill-rectangle)
    ("l" . clear-rectangle)
    ("n" . rectangle-number-lines)
    ("o" . open-rectangle)
    ("p" . kmacro-end-macro)
-   ("r" . yank-rectangle)
+   ("k" . yank-rectangle)
    ("u" . xah-quote-lines)
-   ("y" . delete-whitespace-rectangle)
-   ("b" . kmacro-bind-to-key)))
+   ;; ("y" . delete-whitespace-rectangle)
+   ("b" . kmacro-bind-to-key)
+   ("j" . copy-rectangle-as-kill)))
 
 (xah-fly--define-keys
  (define-prefix-command 'xah-fly-t-keymap)
@@ -2598,7 +2601,7 @@ Version 2017-01-21"
    ("i" . xah-copy-file-path)
    ("j" . xah-cut-all-or-region)
    ("k" . xah-paste-or-paste-previous)
-   ("l" . recenter-top-bottom)
+   ("l" . nil)
    ("m" . dired-jump)
    ("n" . xah-fly-n-keymap)
    ("o" . kde-org-keymap)
@@ -2809,15 +2812,15 @@ Version 2017-01-21"
       ;; (define-key xah-fly-key-map (kbd "C-S-t") 'xah-open-last-closed)
       (define-key xah-fly-key-map (kbd "C-v") 'yank)
       (define-key xah-fly-key-map (kbd "C-w") 'xah-close-current-buffer)
-      (define-key xah-fly-key-map (kbd "C-z") 'undo)
+      (define-key xah-fly-key-map (kbd "C-;") 'undo)
 
       (define-key xah-fly-key-map (kbd "C-+") 'text-scale-increase)
       (define-key xah-fly-key-map (kbd "C--") 'text-scale-decrease)
       ;; (define-key xah-fly-key-map (kbd "C-0") (lambda () (interactive) (text-scale-set 0)))
 
       (define-key xah-fly-key-map (kbd "C-r") 'hippie-expand)
-      (define-key xah-fly-key-map (kbd "C-;") 'xah-comment-dwim)
-      ;;(define-key xah-fly-key-map (kbd "C-t") 'xah-toggle-letter-case) ; never do transpose-chars
+      (define-key xah-fly-key-map (kbd "C-z") 'xah-comment-dwim)
+      (define-key xah-fly-key-map (kbd "C-7") 'xah-toggle-letter-case) ; never do transpose-chars
       ;;
       ))
 
@@ -2844,6 +2847,7 @@ Version 2017-01-21"
   "Set command mode keys.
 Version 2017-01-21"
   (interactive)
+  (key-chord-define xah-fly-key-map "jk" 'duplicate-line)
   (xah-fly--define-keys
    xah-fly-key-map
    '(
@@ -2858,6 +2862,7 @@ Version 2017-01-21"
      ("-" . xah-cycle-hyphen-underscore-space)
      ("." . backward-kill-word)
      (";" . undo)
+     (":" . undo-tree-redo)
      ("/" . xah-backward-equal-sign)
      ("\\" . nil)
      ("=" . xah-forward-equal-sign)
@@ -2871,6 +2876,8 @@ Version 2017-01-21"
      ("2" . xah-pop-local-mark-ring)
      ("3" . xah-unplit-window-or-next-frame)
      ("4" . split-window-below)
+     ("{" . winner-undo)
+     ("}" . winner-redo)
      ;; ("5" . replace-char)
      ("5" . delete-char)
      ("6" . xah-select-block)
@@ -2978,7 +2985,7 @@ Version 2017-01-21"
   (interactive)
   ;; (setq xah-fly-key-map (make-sparse-keymap))
   ;; (setq xah-fly-key-map (make-keymap))
-
+  (key-chord-define xah-fly-key-map "jk" nil)
   (xah-fly--define-keys
    xah-fly-key-map
    '(
@@ -3026,13 +3033,10 @@ Version 2017-01-21"
 
      ("a" . nil)
      ("b" . nil)
-     ("B" . nil)
      ("c" . nil)
      ("d" . nil)
      ("e" . nil)
-     ("E" . nil)
      ("f" . nil)
-     ("F" . nil)
      ("g" . nil)
      ("h" . nil)
      ("i" . nil)
@@ -3040,7 +3044,6 @@ Version 2017-01-21"
      ("k" . nil)
      ("l" . nil)
      ("m" . nil)
-     ("M" . nil)
      ("n" . nil)
      ("o" . nil)
      ("p" . nil)
@@ -3051,12 +3054,39 @@ Version 2017-01-21"
      ("u" . nil)
      ("v" . nil)
      ("w" . nil)
-     ("W" . nil)
      ("x" . nil)
      ("X" . nil)
      ("y" . nil)
      ("Y" . nil)
      ("z" . nil)
+
+     ("A" . nil)
+     ("B" . nil)
+     ("C" . nil)
+     ("D" . nil)
+     ("E" . nil)
+     ("F" . nil)
+     ("G" . nil)
+     ("H" . nil)
+     ("I" . nil)
+     ("J" . nil)
+     ("K" . nil)
+     ("L" . nil)
+     ("M" . nil)
+     ("N" . nil)
+     ("O" . nil)
+     ("P" . nil)
+     ("Q" . nil)
+     ("R" . nil)
+     ("S" . nil)
+     ("T" . nil)
+     ("U" . nil)
+     ("V" . nil)
+     ("W" . nil)
+     ("X" . nil)
+     ("Y" . nil)
+     ("Z" . nil)
+
 
      ("а" . nil)
      ("б" . nil)

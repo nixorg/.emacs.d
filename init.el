@@ -29,6 +29,7 @@
 
 (setq make-backup-files nil)
 (setq auto-save-default nil)
+(setq backup-by-copying t)
 
 (show-paren-mode 1)
 (global-hl-line-mode)
@@ -196,10 +197,14 @@
 
 (defun quit-command()
   (interactive)
-  (if (bound-and-true-p multiple-cursors-mode)
-      (mc/keyboard-quit))
-  (xah-fly-command-mode-activate)
-  (keyboard-quit))
+  
+  (if xah-fly-insert-state-q
+      (xah-fly-command-mode-activate)
+    (progn
+      (if (bound-and-true-p multiple-cursors-mode)
+	  (mc/keyboard-quit)
+	(keyboard-quit)))
+    ))
 
 (use-package nlinum
   :ensure t
@@ -309,6 +314,7 @@
   :ensure t
   :config
   (progn
+    (setq mc/always-run-for-all t)
     (define-key mc/keymap (kbd "<escape>") 'mc/keyboard-quit)
     (global-set-key (kbd "C-8") 'mc/mark-all-like-this)
     (global-set-key (kbd "M-8") 'vr/mc-mark)))
@@ -477,6 +483,11 @@
 ;;   (define-key global-map (kbd "M-i") 'ace-jump-mode))
 
 ;; org mode
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((lisp . t)))
+
 (add-hook 'org-mode-hook
 	  (lambda ()
 	    (progn
@@ -507,7 +518,7 @@
   :ensure t
   :config
   (add-hook 'python-mode-hook #'smartparens-mode)
-  )
+  (add-hook 'org-mode-hook #'smartparens-mode))
 
 
 ;; Python config
@@ -524,8 +535,6 @@
     (elpy-use-ipython)
     (setq elpy-rpc-backend "jedi")
     ))
-
-
 
 (defun prelude-personal-python-mode-defaults ()
   "Personal defaults for Python programming."
@@ -637,7 +646,6 @@ Called via the `after-load-functions' special hook."
   (interactive) (revert-buffer t t))
 (require 'ob-sh)
 ;; (setq org-babel-sh-command "f:\\app\\emacs24\\libexec\\emacs\\24.5\\i686-pc-mingw32\\cmdproxy.exe")
-
 
 (use-package visual-regexp
   :ensure t)
@@ -965,3 +973,16 @@ Called via the `after-load-functions' special hook."
   (popwin-mode 1)
   (push "*multitran*" popwin:special-display-config))
 
+(defun duplicate-line()
+  (interactive)
+  (move-beginning-of-line 1)
+  (kill-line)
+  (yank)
+  (open-line 1)
+  (next-line 1)
+  (yank)
+)
+(global-set-key (kbd "C-d") 'duplicate-line)
+
+(use-package dumb-jump
+  :ensure t)

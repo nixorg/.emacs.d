@@ -37,7 +37,6 @@
 (setq scroll-conservatively 100)
 
 ;; Theme settings
-
 (use-package solarized-theme
   :ensure t)
 (setq solarized-use-variable-pitch nil)
@@ -48,7 +47,7 @@
 (setq solarized-high-contrast-mode-line t)
 (load-theme 'solarized-dark t)
 
-;; Load custom modules from congig dir 
+;; Load custom modules from congig dir
 (add-to-list 'load-path "~/.emacs.d/config")
 (setq custom-file "~/.emacs.d/.emacs-custom.el")
 (load custom-file)
@@ -127,7 +126,7 @@
 (require 'winner)
 (winner-mode 1)
 
-;; Define custom function profix key 
+;; Define custom function profix key
 (xah-fly--define-keys
  (define-prefix-command 'kde-function-keymap)
  '(
@@ -197,7 +196,7 @@
 
 (defun quit-command()
   (interactive)
-  
+
   (if xah-fly-insert-state-q
       (xah-fly-command-mode-activate)
     (progn
@@ -211,7 +210,7 @@
   :config
   (progn
     (setq nlinum-format " %3d ")
-    (add-hook 'prog-mode-hook 'nlinum-mode)
+    ;; (add-hook 'prog-mode-hook 'nlinum-mode)
     ;; (add-hook 'text-mode-hook 'nlinum-mode)
     ))
 
@@ -222,14 +221,14 @@
 
 
 (use-package undo-tree
-  :ensure t)  
-(global-undo-tree-mode 1) 
+  :ensure t)
+(global-undo-tree-mode 1)
 
 
 ;; ;; Install code-folding
 ;; (use-package hideshowvis
 ;;   :ensure t
-;;   :config (progn 
+;;   :config (progn
 ;;             (hideshowvis-symbols)
 ;;             (bind-key "C-c h" 'hs-toggle-hiding)
 ;;             (set-face-attribute 'hs-face nil
@@ -263,7 +262,7 @@
   (setq helm-autoresize-max-height 0)
   (setq helm-autoresize-min-height 40)
   (helm-autoresize-mode 1)
-  :bind (("C-f" . helm-occur) 
+  :bind (("C-f" . helm-occur)
 	 :map helm-map
 	 ("M-c" . helm-previous-line)
 	 ("M-t" . helm-next-line)
@@ -295,16 +294,16 @@
 	      (":" . nil)
 	      ("M-;" . nil))
   :config
-  (define-key paredit-mode-map (kbd "C-,") 'paredit-wrap-round)  
-  (define-key paredit-mode-map (kbd "C-<") 'paredit-forward-barf-sexp)  
-  (define-key paredit-mode-map (kbd "C->") 'paredit-forward-slurp-sexp)  
+  (define-key paredit-mode-map (kbd "C-,") 'paredit-wrap-round)
+  (define-key paredit-mode-map (kbd "C-<") 'paredit-forward-barf-sexp)
+  (define-key paredit-mode-map (kbd "C->") 'paredit-forward-slurp-sexp)
   (define-key paredit-mode-map (kbd "C-p") 'paredit-raise-sexp)
   (define-key paredit-mode-map (kbd "C-S-r") 'paredit-forward)
   (define-key paredit-mode-map (kbd "C-S-g") 'paredit-backward)
-  (define-key paredit-mode-map (kbd "C-S-t") 'paredit-forward-up)
-  (define-key paredit-mode-map (kbd "C-S-c") 'paredit-backward-up)
+  ;; (define-key paredit-mode-map (kbd "C-S-t") 'paredit-forward-up)
+  ;; (define-key paredit-mode-map (kbd "C-S-c") 'paredit-backward-up)
   (define-key paredit-mode-map (kbd "C-<return>") 'paredit-close-new-line-custom)
-  
+
   (defun paredit-close-new-line-custom ()
     (interactive)
     (paredit-close-round)
@@ -384,7 +383,7 @@
              '(nxml-mode
                "<!--\\|<[^/>]*[^/]>"
                "-->\\|</[^/>]*[^/]>"
-	       
+
                "<!--"
                sgml-skip-tag-forward
                nil))
@@ -452,8 +451,8 @@
   :config
   (progn
     (with-eval-after-load 'company
-      (company-quickhelp-mode)
-      (setq company-quickhelp-delay 1.0)
+      ;; (company-quickhelp-mode)
+      ;; (setq company-quickhelp-delay 1.0)
       (define-key company-active-map (kbd "M-b") nil)
       (define-key company-active-map (kbd "M-l") nil)
       (define-key company-active-map (kbd "C-o") nil)
@@ -465,7 +464,7 @@
     (add-hook 'after-init-hook 'global-company-mode)
     ))
 
-				   
+
 (use-package expand-region
   :ensure t)
 
@@ -483,10 +482,16 @@
 ;;   (define-key global-map (kbd "M-i") 'ace-jump-mode))
 
 ;; org mode
+(use-package ob-ipython
+  :ensure t)
+(setq org-confirm-babel-evaluate nil)   ;don't prompt me to confirm everytime I want to evaluate a block
+(add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+(setq org-startup-with-inline-images t)
 
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((lisp . t)))
+ '((lisp . t)
+   (ipython . t)))
 
 (add-hook 'org-mode-hook
 	  (lambda ()
@@ -529,12 +534,42 @@
 (use-package elpy
   :ensure t
   :config
-  (progn 
+  (progn
     (elpy-enable)
-    ;;(setq Exec-path (append exec-path '("c:/Program Files (x86)/Python3/Scripts")))
+    ;; (setq Exec-path (append exec-path '("c:/Program Files (x86)/Python3/Scripts")))
+    (setq Exec-path (append exec-path '("c:/Users/Yauheni_Kuzmianok/.virtualenv/Scripts")))
+    (pyvenv-activate "~/.virtualenv")
     (elpy-use-ipython)
+    (setenv "PYTHONIOENCODING" "UTF-8")
     (setq elpy-rpc-backend "jedi")
+    (setq jedi:complete-on-dot t)
+    (setq jedi:setup-keys t)
     ))
+
+(use-package realgud
+  :ensure t)
+
+(require 'cl)
+
+(use-package ein
+  :ensure t
+  :config
+  (progn
+    (require 'websocket)
+    ;; Use Jedi with EIN
+    (add-hook 'ein:connect-mode-hook 'ein:jedi-setup)
+    (setq ein:default-url-or-port "http://localhost:8888"
+          ein:output-type-preference '(emacs-lisp svg png jpeg
+                                                  html text latex javascript))
+    )
+  )
+
+(use-package virtualenvwrapper
+  :ensure t
+  :config
+  (venv-initialize-interactive-shells)
+  (venv-initialize-eshell)
+  (setq venv-location "~/.virtualenv/"))
 
 (defun prelude-personal-python-mode-defaults ()
   "Personal defaults for Python programming."
@@ -554,7 +589,7 @@
 
 
 (add-hook 'python-mode-hook (lambda ()
-			      ;(electric-pair-mode 1) 
+			      ;(electric-pair-mode 1)
                               (run-hooks 'prelude-personal-python-mode-hook)))
 
 (defun xah-display-minor-mode-key-priority  ()
@@ -594,6 +629,7 @@ Called via the `after-load-functions' special hook."
 ;(setq exec-path (append exec-path '("d:/app/cygwin/bin")))
 
 ;; Add yasnippet support
+(setq yas-snippet-dirs '("~/.emacs.d/snippets"))
 (yas-global-mode 1)
 (define-key yas-keymap (kbd "C-d") 'yas-skip-and-clear-or-delete-char)
 
@@ -659,7 +695,7 @@ Called via the `after-load-functions' special hook."
 (use-package spaceline
   :ensure t
   :config
-  (progn 
+  (progn
     (require 'spaceline-config)
     ;; (spaceline-emacs-theme)
     (spaceline-helm-mode)
@@ -674,7 +710,7 @@ Called via the `after-load-functions' special hook."
 (use-package diminish
   :ensure t
   :config
-  (progn 
+  (progn
     (diminish 'ivy-mode)
     (diminish 'which-key-mode)
     (diminish 'undo-tree-mode)
@@ -754,7 +790,7 @@ Called via the `after-load-functions' special hook."
 				      (powerline-minor-modes face2 'l)
 				      (powerline-raw " " face2)
 				      (funcall separator-right face2 face1))))
-		   (concat 
+		   (concat
 		    (powerline-render lhs)
 		  ;   (powerline-render ths)
 			    (powerline-fill-center face1 (/ (powerline-width center) 2.0))
@@ -910,14 +946,6 @@ Called via the `after-load-functions' special hook."
   (open-line 1)
   (indent-according-to-mode))
 
-(use-package js2-mode
-  :ensure t
-  :config
-  (add-hook 'js2-mode-hook 'skewer-mode)
-  (add-hook 'js2-mode-hook 'smartparens-mode))
-
-(use-package skewer-mode
-  :ensure t)
 
 (defun custom-eval-single ()
   (interactive)
@@ -931,9 +959,11 @@ Called via the `after-load-functions' special hook."
        (string-equal major-mode "xah-clojure-mode")
        (string-equal major-mode "scheme-mode"))
       (eval-defun nil)
-    (if (eq major-mode 'js2-mode)	
-	(skewer-load-buffer))
-    (if (eq major-mode 'python-mode)	
+    (if (or (eq major-mode 'js2-mode)
+	    (eq major-mode 'html-mode)
+	    (eq major-mode 'css-mode))
+	(skewer-html-eval-tag))
+    (if (eq major-mode 'python-mode)
 	(elpy-shell-send-region-or-buffer))))
 
 (defun custom-eval-double ()
@@ -948,9 +978,9 @@ Called via the `after-load-functions' special hook."
        (string-equal major-mode "xah-clojure-mode")
        (string-equal major-mode "scheme-mode"))
       (eval-region (region-beginning) (region-end) t)
-    (if (eq major-mode 'js2-mode)	
+    (if (eq major-mode 'js2-mode)
 	(skewer-eval-last-expression))
-    (if (eq major-mode 'python-mode)	
+    (if (eq major-mode 'python-mode)
 	(elpy-shell-send-current-statement))))
 
 (use-package key-chord
@@ -962,7 +992,8 @@ Called via the `after-load-functions' special hook."
 (use-package flycheck
   :ensure t
   :config
-  (global-flycheck-mode))
+  ;; (global-flycheck-mode)
+  )
 
 (use-package corral
   :ensure t)
@@ -979,10 +1010,68 @@ Called via the `after-load-functions' special hook."
   (kill-line)
   (yank)
   (open-line 1)
-  (next-line 1)
-  (yank)
+d  (next-line 1)
+  (yank)>
 )
 (global-set-key (kbd "C-d") 'duplicate-line)
 
 (use-package dumb-jump
   :ensure t)
+
+(use-package buffer-move
+  :ensure t
+  :config
+  (define-key xah-fly-key-map (kbd "C-S-c") 'buf-move-up)
+  (define-key xah-fly-key-map (kbd "C-S-t") 'buf-move-down)
+  (define-key xah-fly-key-map (kbd "C-S-h") 'buf-move-left)
+  (define-key xah-fly-key-map (kbd "C-S-n") 'buf-move-right)
+  )
+
+(use-package switch-window
+  :ensure t)
+
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-global-mode))
+
+;;; Web dev configuration
+
+(use-package emmet-mode
+  :ensure t
+  :config
+  (add-hook 'web-mode-hook 'emmet-mode)
+  (add-hook 'html-mode-hook 'emmet-mode))
+
+(use-package rainbow-mode
+  :ensure t
+  :config
+  (add-hook 'html-mode-hook 'rainbow-mode)
+  (add-hook 'css-mode-hook 'rainbow-mode))
+
+(use-package js2-mode
+  :ensure t
+  :config
+  (add-hook 'js2-mode-hook 'skewer-mode)
+  (add-hook 'js2-mode-hook 'smartparens-mode))
+
+(use-package skewer-mode
+  :ensure t
+  :config
+  (add-hook 'html-mode-hook 'skewer-html-mode)
+  (add-hook 'js2-mode 'skewer-mode)
+  (add-hook 'css-mode 'skewer-mode)
+  (define-key html-mode-map (kbd "C-c C-c") 'skewer-html-eval-tag))
+
+(use-package web-mode
+  :ensure t
+  :config
+  (add-hook 'web-mode-hook 'smartparens-mode)
+  (sp-with-modes '(web-mode)
+    (sp-local-pair "{% "  " %}")
+    (sp-local-pair "<p> "  " </p>")
+    (sp-local-pair "{% "  " %}")
+    (sp-local-tag "%" "<% "  " %>")
+    (sp-local-tag "=" "<%= " " %>")
+    (sp-local-tag "#" "<%# " " %>")))
+

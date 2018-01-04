@@ -4,6 +4,11 @@
 #+OPTIONS: toc:nil num:nil
 
 * General
+** Intro
+Here is my modal Emacs configuration that has been inspired by Xah Lee
+
+[[./img/editor.png]]
+
 ** Configure package management
 
 #+BEGIN_SRC emacs-lisp
@@ -22,7 +27,14 @@
 ** Settings
 
 #+BEGIN_SRC emacs-lisp
-(server-start)
+;;(server-start)
+;;(setq ns-pop-up-frames nil)
+
+(defun px-raise-frame-and-give-focus () 
+  (when window-system (raise-frame) (x-focus-frame (selected-frame)) (set-mouse-pixel-position (selected-frame) 4 4) )
+  )
+(add-hook 'server-switch-hook 'px-raise-frame-and-give-focus)
+
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1) ; relegate tooltips to echo area only
@@ -30,6 +42,7 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (set-default 'truncate-lines t)
 (delete-selection-mode 1)
+(setq mac-command-modifier 'control)
 (setq visible-bell t)
 (setq ring-bell-function 'ignore)
 (setq inhibit-startup-screen t)
@@ -47,6 +60,12 @@
 (setq scroll-conservatively 100)
 
 (put 'narrow-to-region 'disabled nil)
+
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize)
+  )
 
 (add-to-list 'load-path "~/.emacs.d/config")
 (setq custom-file "~/.emacs.d/.emacs-custom.el")
@@ -180,7 +199,7 @@
   (local-set-key (kbd "C-a") 'mark-whole-buffer))
 (add-hook 'minibuffer-setup-hook 'my/paste-in-minibuffer)
 #+end_src
-
+   
 ** Window manipulation
 
 #+BEGIN_SRC emacs-lisp
@@ -205,7 +224,10 @@
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-(add-to-list 'initial-frame-alist '(font . "Fira Mono 10"))
+(add-to-list 'default-frame-alist '(font . "Fira Mono for Powerline 13"))
+;;(set-default-font "Fira Mono for Powerline 14")
+(setq powerline-image-apple-rgb t)
+;;(setq ns-use-srgb-colorspace nil)
 #+END_SRC
 
 ** Theme
@@ -389,7 +411,7 @@
 (defun xah-get-current-mode-str ()
   (if xah-fly-insert-state-q "INSERT  " "COMMAND "))
 #+END_SRC
-
+   
 * Keys
 ** Xah-fly-keys
 *** Init configuration
@@ -600,6 +622,8 @@ Called via the `after-load-functions' special hook."
 #+END_SRC
 ** yasnippet
 #+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+:ensure t)
 (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
 (yas-global-mode 1)
 (define-key yas-keymap (kbd "C-d") 'yas-skip-and-clear-or-delete-char)
@@ -809,8 +833,8 @@ Called via the `after-load-functions' special hook."
 #+begin_src emacs-lisp
 (use-package nxml
   :bind (:map nxml-mode-map 
-              ("H" . my-hs-hide-level)
-              ("N" . my-hs-toggle-hiding)
+              ("G" . my-hs-hide-level)
+              ("R" . my-hs-toggle-hiding)
               ("C-0" . hs-show-all)))
 
 (add-to-list 'hs-special-modes-alist
@@ -940,7 +964,7 @@ Called via the `after-load-functions' special hook."
     ;; (setq Exec-path (append exec-path '("c:/Program Files (x86)/Python3/Scripts")))
     (setq Exec-path (append exec-path '("c:/Users/Yauheni_Kuzmianok/.virtualenv/Scripts")))
     (pyvenv-activate "~/.virtualenv")
-    (elpy-use-ipython)
+    ;;(elpy-use-ipython)
     (setenv "PYTHONIOENCODING" "UTF-8")
     (setq elpy-rpc-backend "jedi")
     (setq jedi:complete-on-dot t)

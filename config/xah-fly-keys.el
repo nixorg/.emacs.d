@@ -2847,7 +2847,7 @@ Version 2017-01-21"
   "Set command mode keys.
 Version 2017-01-21"
   (interactive)
-  (key-chord-define xah-fly-key-map "jk" 'duplicate-line)
+  ;;(key-chord-define xah-fly-key-map "jk" 'duplicate-line)
   (xah-fly--define-keys
    xah-fly-key-map
    '(
@@ -2991,7 +2991,7 @@ Version 2017-01-21"
   (interactive)
   ;; (setq xah-fly-key-map (make-sparse-keymap))
   ;; (setq xah-fly-key-map (make-keymap))
-  (key-chord-define xah-fly-key-map "jk" nil)
+  ;;(key-chord-define xah-fly-key-map "jk" nil)
   (xah-fly--define-keys
    xah-fly-key-map
    '(

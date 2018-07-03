@@ -30,11 +30,6 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
 ;;(server-start)
 ;;(setq ns-pop-up-frames nil)
 
-(defun px-raise-frame-and-give-focus () 
-  (when window-system (raise-frame) (x-focus-frame (selected-frame)) (set-mouse-pixel-position (selected-frame) 4 4) )
-  )
-(add-hook 'server-switch-hook 'px-raise-frame-and-give-focus)
-
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1) ; relegate tooltips to echo area only
@@ -53,6 +48,7 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
 (setq make-backup-files nil)
 (setq auto-save-default nil)
 (setq backup-by-copying t)
+(setq bookmark-save-flag 1)
 
 (show-paren-mode 1)
 (global-hl-line-mode)
@@ -64,8 +60,12 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
 (use-package exec-path-from-shell
   :ensure t
   :config
-  (exec-path-from-shell-initialize)
-  )
+  (exec-path-from-shell-initialize))
+
+(use-package mac-pseudo-daemon
+  :ensure t
+  :init
+  (mac-pseudo-daemon-mode))
 
 (add-to-list 'load-path "~/.emacs.d/config")
 (setq custom-file "~/.emacs.d/.emacs-custom.el")
@@ -195,7 +195,7 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
 
 (defun my/paste-in-minibuffer ()
   (local-set-key (kbd "M-k") 'yank)
-  (local-set-key (kbd "C-k") 'yank)
+  (local-set-key (kbd "C-v") 'yank)
   (local-set-key (kbd "C-a") 'mark-whole-buffer))
 (add-hook 'minibuffer-setup-hook 'my/paste-in-minibuffer)
 #+end_src
@@ -464,9 +464,11 @@ Called via the `after-load-functions' special hook."
 (xah-fly--define-keys
  (define-prefix-command 'kde-org-keymap)
  '(
-   ("e" . org-edit-special)
+   ("o" . org-edit-special)
    ("a" . org-agenda)
    ("t" . org-toggle-checkbox)
+   ("e" . org-edit-src-exit)
+   ("n" . org-add-note)
    ))
 #+END_SRC
 **** Magit
@@ -610,6 +612,7 @@ Called via the `after-load-functions' special hook."
   :ensure t
   :config
   (add-hook 'python-mode-hook #'smartparens-mode)
+  (add-hook 'typescript-mode-hook #'smartparens-mode)
   (add-hook 'org-mode-hook #'smartparens-mode))
 #+END_SRC
 ** magit
@@ -758,11 +761,13 @@ Called via the `after-load-functions' special hook."
 #+END_SRC
 ** flycheck
 #+BEGIN_SRC emacs-lisp
+
 (use-package flycheck
   :ensure t
   :config
   ;; (global-flycheck-mode)
-  )
+)
+
 #+END_SRC
 ** corral
 #+BEGIN_SRC emacs-lisp
@@ -789,6 +794,16 @@ Called via the `after-load-functions' special hook."
   :ensure t
   :config
   (projectile-global-mode))
+
+(xah-fly--define-keys
+ (define-prefix-command 'kde-projectile-keymap)
+ '(
+   ("p" . helm-projectile)
+   ("a" . helm-projectile-ag)
+   ))
+
+(use-package helm-projectile
+  :ensure t)
 #+END_SRC
 
 * Mode configuration
@@ -831,11 +846,12 @@ Called via the `after-load-functions' special hook."
 ** xml
 
 #+begin_src emacs-lisp
-(use-package nxml
-  :bind (:map nxml-mode-map 
-              ("G" . my-hs-hide-level)
-              ("R" . my-hs-toggle-hiding)
-              ("C-0" . hs-show-all)))
+
+(with-eval-after-load 'nxml-mode
+    (define-key nxml-mode-map (kbd "C-S-g") 'my-hs-hide-level)
+    (define-key nxml-mode-map (kbd "C-S-r") 'my-hs-toggle-hiding)
+    (define-key nxml-mode-map (kbd "C-0") 'hs-show-all))
+
 
 (add-to-list 'hs-special-modes-alist
              '(nxml-mode
@@ -962,11 +978,15 @@ Called via the `after-load-functions' special hook."
   (progn
     (elpy-enable)
     ;; (setq Exec-path (append exec-path '("c:/Program Files (x86)/Python3/Scripts")))
-    (setq Exec-path (append exec-path '("c:/Users/Yauheni_Kuzmianok/.virtualenv/Scripts")))
-    (pyvenv-activate "~/.virtualenv")
+    ;;(setq Exec-path (append exec-path '("c:/Users/Yauheni_Kuzmianok/.virtualenv/Scripts")))
+    ;;(pyvenv-activate "~/.virtualenv")
     ;;(elpy-use-ipython)
+    (setq python-shell-interpreter "ipython"
+          python-shell-interpreter-args "--simple-prompt -i")
     (setenv "PYTHONIOENCODING" "UTF-8")
     (setq elpy-rpc-backend "jedi")
+    (setq elpy-rpc-python-command "/usr/local/bin/python3")
+    (setq elpy-rpc-py "jedi")
     (setq jedi:complete-on-dot t)
     (setq jedi:setup-keys t)
     ))
@@ -1030,7 +1050,8 @@ Called via the `after-load-functions' special hook."
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((lisp . t)
-   (ipython . t)))
+   (python . t)
+   (shell . t)))
 
 (add-hook 'org-mode-hook
 	  (lambda ()
@@ -1060,6 +1081,7 @@ Called via the `after-load-functions' special hook."
     (sp-local-pair "{% "  " %}")
     (sp-local-pair "<p> "  " </p>")
     (sp-local-pair "{% "  " %}")
+    (sp-local-pair "{{ "  " }}")
     (sp-local-tag "%" "<% "  " %>")
     (sp-local-tag "=" "<%= " " %>")
     (sp-local-tag "#" "<%# " " %>")))
@@ -1080,17 +1102,42 @@ Called via the `after-load-functions' special hook."
 ** js
 
 #+BEGIN_SRC emacs-lisp
-(use-package js2-mode
-  :ensure t
-  :config
-  (add-hook 'js2-mode-hook 'skewer-mode)
-  (add-hook 'js2-mode-hook 'smartparens-mode))
+  (use-package js2-mode
+    :ensure t
+  )
 
-(use-package skewer-mode
-  :ensure t
-  :config
-  (add-hook 'html-mode-hook 'skewer-html-mode)
-  (add-hook 'js2-mode 'skewer-mode)
-  (add-hook 'css-mode 'skewer-mode)
-  (define-key html-mode-map (kbd "C-c C-c") 'skewer-html-eval-tag))
+  (defun setup-tide-mode ()
+    (interactive)
+    (tide-setup)
+    (flycheck-mode +1)
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    (eldoc-mode +1)
+    (tide-hl-identifier-mode +1)
+    ;; company is an optional dependency. You have to
+    ;; install it separately via package-install
+    ;; `M-x package-install [ret] company`
+    (company-mode +1))
+
+  (use-package tide
+    :ensure t)
+
+
+  ;; formats the buffer before saving
+  (add-hook 'before-save-hook 'tide-format-before-save)
+  (add-hook 'typescript-mode-hook #'setup-tide-mode)
+
+  (use-package skewer-mode
+    :ensure t
+    :config
+    (add-hook 'html-mode-hook 'skewer-html-mode)
+    (add-hook 'js2-mode 'skewer-mode)
+    (add-hook 'css-mode 'skewer-mode)
+    (define-key html-mode-map (kbd "C-c C-c") 'skewer-html-eval-tag))
 #+END_SRC
+   
+** dired
+#+BEGIN_SRC emacs-lisp
+(setq insert-directory-program "gls")
+(setq dired-use-ls-dired t)
+(setq dired-listing-switches "-al --group-directories-first")
+#+END_SRC 

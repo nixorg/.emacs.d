@@ -2384,22 +2384,22 @@ Version 2017-01-21"
    ("c" . describe-char)
    ("d" . apropos-documentation)
    ("e" . view-echo-area-messages)
-   ("f" . describe-face)
+   ("f" . describe-function)
    ("g" . info-lookup-symbol)
-   ("h" . describe-function)
+   ("h" . describe-face)
    ("i" . info)
    ("j" . man)
    ("k" . describe-key)
    ("K" . Info-goto-emacs-key-command-node)
    ("l" . view-lossage)
    ("m" . xah-describe-major-mode)
-   ("n" . describe-variable)
+   ("n" . apropos-value)
    ("o" . describe-language-environment)
    ("p" . finder-by-keyword)
    ("r" . apropos-variable)
    ("s" . describe-syntax)
    ("u" . elisp-index-search)
-   ("v" . apropos-value)
+   ("v" . describe-variable)
    ("9" . google-translate-at-point)
    ("0" . multitran-custom)
    ("8" . thesaurus-choose-synonym-and-replace)
@@ -2605,7 +2605,7 @@ Version 2017-01-21"
    ("m" . dired-jump)
    ("n" . xah-fly-n-keymap)
    ("o" . kde-org-keymap)
-   ("p" . query-replace)
+   ("p" . kde-projectile-keymap)
    ("q" . xah-copy-all-or-region)
    ("r" . xah-fly-r-keymap)
    ("s" . helm-semantic-or-imenu)
@@ -2806,7 +2806,7 @@ Version 2017-01-21"
       (define-key xah-fly-key-map (kbd "C-a") 'mark-whole-buffer)
       (define-key xah-fly-key-map (kbd "C-n") 'xah-new-empty-buffer)
       (define-key xah-fly-key-map (kbd "C-S-n") 'make-frame-command)
-      (define-key xah-fly-key-map (kbd "C-o") 'find-file)
+      (define-key xah-fly-key-map (kbd "C-r") 'helm-find-files)
       (define-key xah-fly-key-map (kbd "C-s") 'save-buffer)
       ;; (define-key xah-fly-key-map (kbd "C-S-s") 'write-file)
       ;; (define-key xah-fly-key-map (kbd "C-S-t") 'xah-open-last-closed)
@@ -2818,7 +2818,7 @@ Version 2017-01-21"
       (define-key xah-fly-key-map (kbd "C--") 'text-scale-decrease)
       ;; (define-key xah-fly-key-map (kbd "C-0") (lambda () (interactive) (text-scale-set 0)))
 
-      (define-key xah-fly-key-map (kbd "C-r") 'hippie-expand)
+      ;;(define-key xah-fly-key-map (kbd "C-r") 'hippie-expand)
       (define-key xah-fly-key-map (kbd "C-z") 'xah-comment-dwim)
       (define-key xah-fly-key-map (kbd "C-7") 'xah-toggle-letter-case) ; never do transpose-chars
       ;;
@@ -2826,7 +2826,7 @@ Version 2017-01-21"
 
   (progn
     (when xah-fly-use-meta-key
-      (define-key xah-fly-key-map (kbd "M-SPC") 'xah-fly-command-mode-activate)))
+      (define-key xah-fly-key-map (kbd "C-'") 'xah-fly-command-mode-activate)))
   ;;
   )
 
@@ -2914,7 +2914,7 @@ Version 2017-01-21"
      ("h" . backward-char)
      ("H" . switch-window-mvborder-left)
      ("о" . backward-char)
-     ("i" . avy-goto-char)
+     ("i" . undo)
      ("п" . avy-goto-char)
      ("j" . xah-copy-line-or-region)
      ("с" . xah-copy-line-or-region)

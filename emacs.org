@@ -184,6 +184,22 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
   (next-line 1)
   (yank)
   )
+
+(defun kde-open-in-terminal ()
+  (interactive)
+  (cond
+   ((string-equal system-type "windows-nt")
+    (message "Microsoft Windows not supported. File a bug report or pull request."))
+   ((string-equal system-type "darwin")
+    (let ((process-connection-type nil))
+      (shell-command (concat "open -a "
+			       (shell-quote-argument "/Applications/iTerm.app")
+			       " "
+			       (shell-quote-argument (file-truename default-directory))))))
+   ((string-equal system-type "gnu/linux")
+    (let ((process-connection-type nil))
+      (start-process "" nil "x-terminal-emulator"
+                     (concat "--working-directory=" default-directory))))))
 #+END_SRC   
 
 ** Minibuffer
@@ -690,6 +706,12 @@ Called via the `after-load-functions' special hook."
 #+END_SRC
 ** dired
 #+BEGIN_SRC emacs-lisp
+(use-package dired
+  :ensure nil
+  :bind (:map dired-mode-map
+         ("C-<return>" . xah-open-in-external-app)
+         ("M-<return>" . kde-open-in-terminal)))
+
 (use-package dired+
   :ensure t
   :config

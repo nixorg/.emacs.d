@@ -240,7 +240,7 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-(add-to-list 'default-frame-alist '(font . "Fira Mono for Powerline 13"))
+(add-to-list 'default-frame-alist '(font . "Fira Mono 13"))
 ;;(set-default-font "Fira Mono for Powerline 14")
 (setq powerline-image-apple-rgb t)
 ;;(setq ns-use-srgb-colorspace nil)
@@ -713,7 +713,7 @@ Called via the `after-load-functions' special hook."
          ("M-<return>" . kde-open-in-terminal)))
 
 (use-package dired+
-  :ensure t
+ :ensure t
   :config
   (setq ls-lisp-dirs-first t))
 
@@ -827,7 +827,6 @@ Called via the `after-load-functions' special hook."
 (use-package helm-projectile
   :ensure t)
 #+END_SRC
-
 * Mode configuration
 ** lisp
 
@@ -838,32 +837,32 @@ Called via the `after-load-functions' special hook."
 
 *** paredit
 #+BEGIN_SRC emacs-lisp
-  (use-package paredit
-    :ensure t
-    :diminish paredit-mode
-    :init
-    (add-hook 'lisp-mode-hook 'enable-paredit-mode)
-    (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-    (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
-    :bind (:map paredit-mode-map
-                (";" . nil)
-                (":" . nil)
-                ("M-;" . nil))
-    :config
-    (define-key paredit-mode-map (kbd "C-,") 'paredit-wrap-round)
-    (define-key paredit-mode-map (kbd "C-<") 'paredit-forward-barf-sexp)
-    (define-key paredit-mode-map (kbd "C->") 'paredit-forward-slurp-sexp)
-    (define-key paredit-mode-map (kbd "C-p") 'paredit-raise-sexp)
-    (define-key paredit-mode-map (kbd "C-S-r") 'paredit-forward)
-    (define-key paredit-mode-map (kbd "C-S-g") 'paredit-backward)
-    ;; (define-key paredit-mode-map (kbd "C-S-t") 'paredit-forward-up)
-    ;; (define-key paredit-mode-map (kbd "C-S-c") 'paredit-backward-up)
-    (define-key paredit-mode-map (kbd "C-<return>") 'paredit-close-new-line-custom)
+(use-package paredit
+  :ensure t
+  :diminish paredit-mode
+  :init
+  (add-hook 'lisp-mode-hook 'enable-paredit-mode)
+  (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+  (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
+  :bind (:map paredit-mode-map
+              (";" . nil)
+              (":" . nil)
+              ("M-;" . nil))
+  :config
+  (define-key paredit-mode-map (kbd "C-,") 'paredit-wrap-round)
+  (define-key paredit-mode-map (kbd "C-<") 'paredit-forward-barf-sexp)
+  (define-key paredit-mode-map (kbd "C->") 'paredit-forward-slurp-sexp)
+  (define-key paredit-mode-map (kbd "C-p") 'paredit-raise-sexp)
+  (define-key paredit-mode-map (kbd "C-S-r") 'paredit-forward)
+  (define-key paredit-mode-map (kbd "C-S-g") 'paredit-backward)
+  ;; (define-key paredit-mode-map (kbd "C-S-t") 'paredit-forward-up)
+  ;; (define-key paredit-mode-map (kbd "C-S-c") 'paredit-backward-up)
+  (define-key paredit-mode-map (kbd "C-<return>") 'paredit-close-new-line-custom)
 
-    (defun paredit-close-new-line-custom ()
-      (interactive)
-      (paredit-close-round)
-      (newline-and-indent)))
+  (defun paredit-close-new-line-custom ()
+    (interactive)
+    (paredit-close-round)
+    (newline-and-indent)))
 #+END_SRC
 ** xml
 
@@ -1005,12 +1004,12 @@ Called via the `after-load-functions' special hook."
     ;;(elpy-use-ipython)
     (setq python-shell-interpreter "ipython"
           python-shell-interpreter-args "--simple-prompt -i")
-    (setenv "PYTHONIOENCODING" "UTF-8")
+    ;; (setenv "PYTHONIOENCODING" "UTF-8")
     (setq elpy-rpc-backend "jedi")
-    (setq elpy-rpc-python-command "/usr/local/bin/python3")
-    (setq elpy-rpc-py "jedi")
+    (setq elpy-rpc-python-command "python3")
+    ;; (setq elpy-rpc-py "jedi")
     (setq jedi:complete-on-dot t)
-    (setq jedi:setup-keys t)
+    ;; (setq jedi:setup-keys t)
     ))
 
 (use-package realgud)
@@ -1081,6 +1080,8 @@ Called via the `after-load-functions' special hook."
 	      (org-bullets-mode t)
 	      (define-key org-mode-map (kbd "M-H") 'org-metaleft)
 	      (define-key org-mode-map (kbd "M-N") 'org-metaright))))
+
+(add-to-list 'auto-mode-alist '("\\.txt$" . org-mode))
 (setq org-src-tab-acts-natively t)
 (setq org-agenda-files '("d:/datalex/doc/org/"))
 (setq org-log-done 'time)
@@ -1091,6 +1092,14 @@ Called via the `after-load-functions' special hook."
 (setq org-src-window-setup 'current-window)
 (add-to-list 'org-structure-template-alist
 	     '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
+
+(use-package ox-hugo
+  :after ox)
+
+(org-add-link-type "karabiner" 'open-pdf-from-library
+                     (lambda (path desc format)
+                       (format "[%s](%s:%s)" desc "karabiner" path)))
+
 #+END_SRC
 ** web
 
@@ -1163,3 +1172,12 @@ Called via the `after-load-functions' special hook."
 (setq dired-use-ls-dired t)
 (setq dired-listing-switches "-al --group-directories-first")
 #+END_SRC 
+** clojure
+#+BEGIN_SRC emacs-lisp
+(use-package clojure-mode
+  :hook ((clojure-mode . cider-mode)
+	 (clojure-mode . enable-paredit-mode)))
+(use-package cider
+  :hook ((cider-mode . company-mode)
+         (cider-repl-mode . company-mode)))
+#+END_SRC

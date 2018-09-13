@@ -12,258 +12,230 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
 ** Configure package management
 
 #+BEGIN_SRC emacs-lisp
-(require 'package)
-(setq package-enable-at-startup nil)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/")   t)
-(package-initialize)
 
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+;; (require 'package)
+;; (setq package-enable-at-startup nil)
+;; (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/")   t)
+;; (package-initialize)
 
-(setq use-package-always-ensure t)
+(eval-and-compile
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (require 'use-package)
+  (setq use-package-always-ensure t))
+
 #+END_SRC
 
 ** Settings
-
 #+BEGIN_SRC emacs-lisp
-;;(server-start)
-;;(setq ns-pop-up-frames nil)
 
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
-(tooltip-mode -1) ; relegate tooltips to echo area only
-(menu-bar-mode -1)
-(fset 'yes-or-no-p 'y-or-n-p)
-(set-default 'truncate-lines t)
-(delete-selection-mode 1)
-(setq mac-command-modifier 'control)
-(setq visible-bell t)
-(setq ring-bell-function 'ignore)
-(setq inhibit-startup-screen t)
+(custom-set-variables
+ '(scroll-bar-mode nil)
+ '(tool-bar-mode nil)
+ '(tooltip-mode nil) ; relegate tooltips to echo area only
+ '(menu-bar-mode nil)
+ '(delete-selection-mode t)
+ '(visible-bell t)
+ '(ring-bell-function 'ignore)
+ '(inhibit-startup-screen t)
+ '(mac-command-modifier 'control)
+ '(icicle-ido-like-mode nil)
+ '(icicle-mode nil)
+ '(make-backup-files nil)
+ '(auto-save-default nil)
+ '(backup-by-copying t)
+ '(bookmark-save-flag t)
+ '(case-fold-search nil)
+ '(scroll-conservatively 100)
+ '(show-paren-mode t)
+ '(truncate-lines t)
+ '(global-hl-line-mode t)
+ '(winner-mode t)
+ '(which-key-mode t)
+ '(powerline-image-apple-rgb t)
+ '(large-file-warning-threshold 100000000)
+)
+
+(defalias 'yes-or-no-p 'y-or-n-p)
 (prefer-coding-system 'utf-8)
-(setq icicle-ido-like-mode nil)
-(setq icicle-mode nil)
-
-(setq make-backup-files nil)
-(setq auto-save-default nil)
-(setq backup-by-copying t)
-(setq bookmark-save-flag 1)
-
-(show-paren-mode 1)
-(global-hl-line-mode)
-(setq case-fold-search nil)
-(setq scroll-conservatively 100)
-
 (put 'narrow-to-region 'disabled nil)
 
 (use-package exec-path-from-shell
   :ensure t
   :config
   (exec-path-from-shell-initialize))
-
-(use-package mac-pseudo-daemon
-  :ensure t
-  :init
-  (mac-pseudo-daemon-mode))
-
-(add-to-list 'load-path "~/.emacs.d/config")
-(setq custom-file "~/.emacs.d/.emacs-custom.el")
-(load custom-file)
 #+END_SRC
-
 ** Defuns
 
 #+BEGIN_SRC emacs-lisp
-(defmacro save-column (&rest body)
-  `(let ((column (current-column)))
-     (unwind-protect
-         (progn ,@body)
-       (move-to-column column))))
-(put 'save-column 'lisp-indent-function 0)
+(eval-and-compile
+  (defmacro save-column (&rest body)
+    `(let ((column (current-column)))
+       (unwind-protect
+           (progn ,@body)
+	 (move-to-column column))))
+  (put 'save-column 'lisp-indent-function 0)
 
-(defun move-line-up ()
-  (interactive)
-  (save-column
-    (transpose-lines 1)
-    (forward-line -2)))
+  (defun move-line-up ()
+    (interactive)
+    (save-column
+      (transpose-lines 1)
+      (forward-line -2)))
 
-(defun move-line-down ()
-  (interactive)
-  (save-column
-    (forward-line 1)
-    (transpose-lines 1)
-    (forward-line -1)))
+  (defun move-line-down ()
+    (interactive)
+    (save-column
+      (forward-line 1)
+      (transpose-lines 1)
+      (forward-line -1)))
 
-(defun replace-char (arg)
-  (interactive
-   (list
-    (read-char-exclusive)))
-  (delete-char 1)
-  (insert arg))
+  (defun replace-char (arg)
+    (interactive
+     (list
+      (read-char-exclusive)))
+    (delete-char 1)
+    (insert arg))
 
-(defun xah-display-minor-mode-key-priority  ()
-  "Print out minor mode's key priority.
+  (defun xah-display-minor-mode-key-priority  ()
+    "Print out minor mode's key priority.
       URL `http://ergoemacs.org/emacs/minor_mode_key_priority.html'
       Version 2017-01-27"
-  (interactive)
-  (mapc
-   (lambda (x) (prin1 (car x)) (terpri))
-   minor-mode-map-alist))
+    (interactive)
+    (mapc
+     (lambda (x) (prin1 (car x)) (terpri))
+     minor-mode-map-alist))
 
-(defun eval-and-replace ()
-  "Replace the preceding sexp with its value."
-  (interactive)
-  (backward-kill-sexp)
-  (condition-case nil
-      (prin1 (eval (read (current-kill 0)))
-             (current-buffer))
-    (error (message "Invalid expression")
-           (insert (current-kill 0)))))
-
-
-(defun revert-buffer-no-confirm ()
-  "Revert buffer without confirmation."
-  (interactive)
-  (revert-buffer t t))
-
-(defun my-new-line-and-indent ()
-  (interactive)
-  (move-end-of-line 1)
-  (newline-and-indent))
-
-(defun my-new-line-and-indent-above ()
-  (interactive)
-  (beginning-of-line)
-  (open-line 1)
-  (indent-according-to-mode))
+  (defun eval-and-replace ()
+    "Replace the preceding sexp with its value."
+    (interactive)
+    (backward-kill-sexp)
+    (condition-case nil
+	(prin1 (eval (read (current-kill 0)))
+               (current-buffer))
+      (error (message "Invalid expression")
+             (insert (current-kill 0)))))
 
 
-(defun custom-eval-single ()
-  (interactive)
-  (if (or
-       (string-equal major-mode "xah-elisp-mode")
-       (string-equal major-mode "emacs-lisp-mode")
-       (string-equal major-mode "lisp-mode")
-       (string-equal major-mode "lisp-interaction-mode")
-       (string-equal major-mode "common-lisp-mode")
-       (string-equal major-mode "clojure-mode")
-       (string-equal major-mode "xah-clojure-mode")
-       (string-equal major-mode "scheme-mode"))
-      (eval-defun nil)
-    (if (or (eq major-mode 'js2-mode)
-            (eq major-mode 'html-mode)
-            (eq major-mode 'css-mode))
-        (skewer-html-eval-tag))
-    (if (eq major-mode 'python-mode)
-        (elpy-shell-send-region-or-buffer))))
+  (defun revert-buffer-no-confirm ()
+    "Revert buffer without confirmation."
+    (interactive)
+    (revert-buffer t t))
 
-(defun custom-eval-double ()
-  (interactive)
-  (if (or
-       (string-equal major-mode "xah-elisp-mode")
-       (string-equal major-mode "emacs-lisp-mode")
-       (string-equal major-mode "lisp-mode")
-       (string-equal major-mode "lisp-interaction-mode")
-       (string-equal major-mode "common-lisp-mode")
-       (string-equal major-mode "clojure-mode")
-       (string-equal major-mode "xah-clojure-mode")
-       (string-equal major-mode "scheme-mode"))
-      (eval-region (region-beginning) (region-end) t)
-    (if (eq major-mode 'js2-mode)
-        (skewer-eval-last-expression))
-    (if (eq major-mode 'python-mode)
-        (elpy-shell-send-current-statement))))
+  (defun my-new-line-and-indent ()
+    (interactive)
+    (move-end-of-line 1)
+    (newline-and-indent))
 
-(defun duplicate-line()
-  (interactive)
-  (move-beginning-of-line 1)
-  (kill-line)
-  (yank)
-  (open-line 1)
-  (next-line 1)
-  (yank)
-  )
+  (defun my-new-line-and-indent-above ()
+    (interactive)
+    (beginning-of-line)
+    (open-line 1)
+    (indent-according-to-mode))
 
-(defun kde-open-in-terminal ()
-  (interactive)
-  (cond
-   ((string-equal system-type "windows-nt")
-    (message "Microsoft Windows not supported. File a bug report or pull request."))
-   ((string-equal system-type "darwin")
-    (let ((process-connection-type nil))
-      (shell-command (concat "open -a "
+
+  (defun custom-eval-single ()
+    (interactive)
+    (if (or
+	 (string-equal major-mode "xah-elisp-mode")
+	 (string-equal major-mode "emacs-lisp-mode")
+	 (string-equal major-mode "lisp-mode")
+	 (string-equal major-mode "lisp-interaction-mode")
+	 (string-equal major-mode "common-lisp-mode")
+	 (string-equal major-mode "clojure-mode")
+	 (string-equal major-mode "xah-clojure-mode")
+	 (string-equal major-mode "scheme-mode"))
+	(eval-defun nil)
+      (if (or (eq major-mode 'js2-mode)
+              (eq major-mode 'html-mode)
+              (eq major-mode 'css-mode))
+          (skewer-html-eval-tag))
+      (if (eq major-mode 'python-mode)
+          (elpy-shell-send-region-or-buffer))))
+
+  (defun custom-eval-double ()
+    (interactive)
+    (if (or
+	 (string-equal major-mode "xah-elisp-mode")
+	 (string-equal major-mode "emacs-lisp-mode")
+	 (string-equal major-mode "lisp-mode")
+	 (string-equal major-mode "lisp-interaction-mode")
+	 (string-equal major-mode "common-lisp-mode")
+	 (string-equal major-mode "clojure-mode")
+	 (string-equal major-mode "xah-clojure-mode")
+	 (string-equal major-mode "scheme-mode"))
+	(eval-region (region-beginning) (region-end) t)
+      (if (eq major-mode 'js2-mode)
+          (skewer-eval-last-expression))
+      (if (eq major-mode 'python-mode)
+          (elpy-shell-send-current-statement))))
+
+  (defun duplicate-line()
+    (interactive)
+    (move-beginning-of-line 1)
+    (kill-line)
+    (yank)
+    (open-line 1)
+    (next-line 1)
+    (yank)
+    )
+
+  (defun kde-open-in-terminal ()
+    (interactive)
+    (cond
+     ((string-equal system-type "windows-nt")
+      (message "Microsoft Windows not supported. File a bug report or pull request."))
+     ((string-equal system-type "darwin")
+      (let ((process-connection-type nil))
+	(shell-command (concat "open -a "
 			       (shell-quote-argument "/Applications/iTerm.app")
 			       " "
 			       (shell-quote-argument (file-truename default-directory))))))
-   ((string-equal system-type "gnu/linux")
-    (let ((process-connection-type nil))
-      (start-process "" nil "x-terminal-emulator"
-                     (concat "--working-directory=" default-directory))))))
+     ((string-equal system-type "gnu/linux")
+      (let ((process-connection-type nil))
+	(start-process "" nil "x-terminal-emulator"
+                       (concat "--working-directory=" default-directory)))))))
 #+END_SRC   
 
 ** Minibuffer
-
 #+begin_src emacs-lisp
-(add-hook 'minibuffer-setup-hook 
-          (lambda () 
-            (xah-fly-keys 0)))
-
-(defun my/paste-in-minibuffer ()
-  (local-set-key (kbd "M-k") 'yank)
-  (local-set-key (kbd "C-v") 'yank)
-  (local-set-key (kbd "C-a") 'mark-whole-buffer))
-(add-hook 'minibuffer-setup-hook 'my/paste-in-minibuffer)
+(eval-and-compile
+  (defun my/paste-in-minibuffer ()
+    (local-set-key (kbd "M-k") 'yank)
+    (local-set-key (kbd "C-v") 'yank)
+    (local-set-key (kbd "C-a") 'mark-whole-buffer))
+  (add-hook 'minibuffer-setup-hook 'my/paste-in-minibuffer))
 #+end_src
-   
 ** Window manipulation
+   #+BEGIN_SRC emacs-lisp
+   (use-package buffer-move
+     :after xah-fly-keys
+     :defer t
+     :ensure t)
 
-#+BEGIN_SRC emacs-lisp
-(require 'winner)
-(winner-mode 1)
-
-(use-package buffer-move
-  :ensure t
-  :config
-  (with-eval-after-load 'xah-fly-keys
-    (define-key xah-fly-key-map (kbd "C-S-c") 'buf-move-up)
-    (define-key xah-fly-key-map (kbd "C-S-t") 'buf-move-down)
-    (define-key xah-fly-key-map (kbd "C-S-h") 'buf-move-left)
-    (define-key xah-fly-key-map (kbd "C-S-n") 'buf-move-right)))
-(use-package switch-window
-  :ensure t)
+   (use-package ace-window
+     :defer t
+     :ensure t)
 #+END_SRC
 
 * UI
-** Font
-
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-(add-to-list 'default-frame-alist '(font . "Fira Mono 13"))
-;;(set-default-font "Fira Mono for Powerline 14")
-(setq powerline-image-apple-rgb t)
-;;(setq ns-use-srgb-colorspace nil)
-#+END_SRC
-
 ** Theme
-
 #+BEGIN_SRC emacs-lisp
 (use-package solarized-theme
-  :ensure t)
-(setq solarized-use-variable-pitch nil)
-(setq solarized-height-plus-1 1.0)
-(setq solarized-height-plus-2 1.0)
-(setq solarized-height-plus-3 1.0)
-(setq solarized-height-plus-4 1.0)
-(setq solarized-high-contrast-mode-line t)
-(load-theme 'solarized-dark t)
+  :ensure t
+  :config
+  (setq solarized-use-variable-pitch nil)
+  (setq solarized-height-plus-1 1.0)
+  (setq solarized-height-plus-2 1.0)
+  (setq solarized-height-plus-3 1.0)
+  (setq solarized-height-plus-4 1.0)
+  (setq solarized-high-contrast-mode-line t)
+  (load-theme 'solarized-dark t))
 #+END_SRC
-
 ** Modeline
-
 #+BEGIN_SRC emacs-lisp
 (use-package spaceline
+  :defer t
   :ensure t
   :config
   (progn
@@ -275,12 +247,14 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
     ))
 
 (use-package powerline
+  :after all-the-icons
+  :defer t
   :ensure t
   :config
   (setq powerline-default-separator 'slant))
 
 (setq-default mode-line-format
-              '(
+	      '(
                 (:eval
                  (let* ((active (powerline-selected-window-active))
                         (mode-line-buffer-id (if active 'mode-line-buffer-id-inactive 'mode-line-buffer-id))
@@ -296,16 +270,16 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
                                                          (powerline-current-separator)
                                                          (cdr powerline-default-separator-dir))))
                         (ths (list
-                              (powerline-raw " test" 'face1 'r)
-                              ))
+			      (powerline-raw " test" 'face1 'r)
+			      ))
                         (lhs (list
-                              (powerline-raw (xah-get-current-mode-str) face-bold1 'l)
-                              (powerline-raw "%*  " face1 'l)
-                              (mode-icon face1)
-                              (powerline-buffer-id face-bold1 'l)
-                              (powerline-raw " " face1 'l)
-                              (powerline-narrow face1 'l)
-                              (powerline-raw (custom-modeline-icon-vc face1) face1 'l)))
+			      (powerline-raw (xah-get-current-mode-str) face-bold1 'l)
+			      (powerline-raw "%*  " face1 'l)
+			      (mode-icon face1)
+			      (powerline-buffer-id face-bold1 'l)
+			      (powerline-raw " " face1 'l)
+			      (powerline-narrow face1 'l)
+			      (powerline-raw (custom-modeline-icon-vc face1) face1 'l)))
                         (rhs (list (powerline-raw global-mode-string face1 'r)
                                    (custom-modeline-region-info face1)
                                    (powerline-raw "%4l" face1 'r)
@@ -317,15 +291,15 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
                                    (powerline-buffer-size face1 'l)
                                    (powerline-hud face2 face1)))
                         (center (list (powerline-raw " " face1)
-                                      (funcall separator-left face1 face2)
-                                      (when (and (boundp 'erc-track-minor-mode) erc-track-minor-mode)
+				      (funcall separator-left face1 face2)
+				      (when (and (boundp 'erc-track-minor-mode) erc-track-minor-mode)
                                         (powerline-raw erc-modified-channels-object face2 'l))
-                                      (powerline-major-mode face2 'l)
-                                      (powerline-process face2)
-                                      (powerline-raw " :" face2)
-                                      (powerline-minor-modes face2 'l)
-                                      (powerline-raw " " face2)
-                                      (funcall separator-right face2 face1))))
+				      (powerline-major-mode face2 'l)
+				      (powerline-process face2)
+				      (powerline-raw " :" face2)
+				      (powerline-minor-modes face2 'l)
+				      (powerline-raw " " face2)
+				      (funcall separator-right face2 face1))))
                    (concat
                     (powerline-render lhs)
                                         ;   (powerline-render ths)
@@ -383,68 +357,79 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
   "Face for global variables."
   :group 'my-lang-mode )
 
+(eval-and-compile
+  (defun mode-icon (face-value)
+    (let ((family (all-the-icons-icon-family-for-buffer))
+          (icon   (all-the-icons-icon-for-buffer)))
+      (if (not (symbolp icon))
+          ;; (propertize (symbol-name icon)
+          ;; 'face `(:height 0.8 :inherit ,face-value)
+          ;; 'display '(raise 0.1))
+          (propertize icon
+                      'face `(:height 1.1 :family ,family :inherit ,face-value)
+                      'display '(raise 0.0)
+                      ))))
 
-(defun mode-icon (face-value)
-  (let ((family (all-the-icons-icon-family-for-buffer))
-        (icon   (all-the-icons-icon-for-buffer)))
-    (if (not (symbolp icon))
-        ;; (propertize (symbol-name icon)
-        ;; 'face `(:height 0.8 :inherit ,face-value)
-        ;; 'display '(raise 0.1))
-        (propertize icon
-                    'face `(:height 1.1 :family ,family :inherit ,face-value)
-                    'display '(raise 0.0)
-                    ))))
+  (defun custom-modeline-region-info (face)
+    (when mark-active
+      (let ((words (count-lines (region-beginning) (region-end)))
+            (chars (count-words (region-end) (region-beginning))))
+	(concat
+	 (propertize (format "   %s" (all-the-icons-octicon "pencil") words chars)
+                     'face `(:family ,(all-the-icons-octicon-family) :inherit ,face)
+                     'display '(raise -0.0))
+	 (propertize (format " (%s, %s)" words chars)
+                     'face `(:height 0.9 :inherit ,face))))))
 
-(defun custom-modeline-region-info (face)
-  (when mark-active
-    (let ((words (count-lines (region-beginning) (region-end)))
-          (chars (count-words (region-end) (region-beginning))))
+  (defun -custom-modeline-github-vc (face)
+    (let ((branch (mapconcat 'concat (cdr (split-string vc-mode "[:-]")) "-")))
       (concat
-       (propertize (format "   %s" (all-the-icons-octicon "pencil") words chars)
-                   'face `(:family ,(all-the-icons-octicon-family) :inherit ,face)
-                   'display '(raise -0.0))
-       (propertize (format " (%s, %s)" words chars)
-                   'face `(:height 0.9 :inherit ,face))))))
+       (propertize (format " %s" (all-the-icons-alltheicon "git" :height 1.0 :v-adjust 0.1 :face face))
+                   'display '(raise 0.1))
+       (propertize " • ")
+       (propertize (format "%s" (all-the-icons-octicon "git-branch" :face face))
+                   'display '(raise 0.1))
+       (propertize (format " %s  " branch)
+                   'display '(raise 0.1) 'face `(:inherit ,face)))))
 
-(defun -custom-modeline-github-vc (face)
-  (let ((branch (mapconcat 'concat (cdr (split-string vc-mode "[:-]")) "-")))
-    (concat
-     (propertize (format " %s" (all-the-icons-alltheicon "git" :height 1.0 :v-adjust 0.1 :face face))
-                 'display '(raise 0.1))
-     (propertize " • ")
-     (propertize (format "%s" (all-the-icons-octicon "git-branch" :face face))
-                 'display '(raise 0.1))
-     (propertize (format " %s  " branch)
-                 'display '(raise 0.1) 'face `(:inherit ,face)))))
+  (defun custom-modeline-icon-vc (face)
+    (when vc-mode
+      (cond
+       ((string-match "Git[:-]" vc-mode) (-custom-modeline-github-vc face))
+       (t (format "%s" vc-mode)))))
 
-(defun custom-modeline-icon-vc (face)
-  (when vc-mode
-    (cond
-     ((string-match "Git[:-]" vc-mode) (-custom-modeline-github-vc face))
-     (t (format "%s" vc-mode)))))
-
-(defun xah-get-current-mode-str ()
-  (if xah-fly-insert-state-q "INSERT  " "COMMAND "))
+  (defun xah-get-current-mode-str ()
+    (if xah-fly-insert-state-q "INSERT  " "COMMAND ")))
 #+END_SRC
-   
+
 * Keys
 ** Xah-fly-keys
 *** Init configuration
-
 #+begin_src emacs-lisp
-(require 'xah-fly-keys)
-(xah-fly-keys 1)
+(use-package xah-fly-keys
+  :load-path "config"
+  :config
+  (xah-fly-keys 1)
+  (add-hook 'minibuffer-setup-hook 
+            (lambda () 
+              (xah-fly-keys 0)))
+  (define-key xah-fly-key-map (kbd "C-M-c") 'buf-move-up)
+  (define-key xah-fly-key-map (kbd "C-M-t") 'buf-move-down)
+  (define-key xah-fly-key-map (kbd "C-M-h") 'buf-move-left)
+  (define-key xah-fly-key-map (kbd "C-M-n") 'buf-move-right)
+  )
 
-(defun my-keys-have-priority (_file)
-  "Try to ensure that my keybindings retain priority over other minor modes.
+(eval-and-compile
+
+  (defun my-keys-have-priority (_file)
+    "Try to ensure that my keybindings retain priority over other minor modes.
 Called via the `after-load-functions' special hook."
-  (unless (eq (caar minor-mode-map-alist) 'xah-fly-keys)
-    (let ((mykeys (assq 'xah-fly-keys minor-mode-map-alist)))
-      (assq-delete-all 'xah-fly-keys minor-mode-map-alist)
-      (add-to-list 'minor-mode-map-alist mykeys))))
+    (unless (eq (caar minor-mode-map-alist) 'xah-fly-keys)
+      (let ((mykeys (assq 'xah-fly-keys minor-mode-map-alist)))
+	(assq-delete-all 'xah-fly-keys minor-mode-map-alist)
+	(add-to-list 'minor-mode-map-alist mykeys))))
 
-(add-hook 'after-load-functions 'my-keys-have-priority)
+  (add-hook 'after-load-functions 'my-keys-have-priority))
 #+end_src
     
 *** Custom Xah keys
@@ -522,6 +507,7 @@ Called via the `after-load-functions' special hook."
 
 #+begin_src emacs-lisp
 (use-package nlinum
+  :defer t
   :ensure t
   :config
   (progn
@@ -541,6 +527,7 @@ Called via the `after-load-functions' special hook."
 
 #+begin_src emacs-lisp
 (use-package undo-tree
+  :defer t
   :ensure t
   :config
   (global-undo-tree-mode 1))
@@ -548,6 +535,7 @@ Called via the `after-load-functions' special hook."
 ** helm
 #+begin_src emacs-lisp
 (use-package helm
+  :defer t
   :ensure t
   :config
   (helm-mode)
@@ -575,14 +563,15 @@ Called via the `after-load-functions' special hook."
 ** which-key
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
+  :defer t
   :ensure t
-  :config
-  (which-key-mode))
+  :config)
 #+END_SRC
 ** multy cursors
 
 #+BEGIN_SRC emacs-lisp
 (use-package multiple-cursors
+  :defer t
   :ensure t
   :config
   (progn
@@ -595,7 +584,7 @@ Called via the `after-load-functions' special hook."
 
 #+BEGIN_SRC emacs-lisp
 (use-package company
-  
+  :defer t
   :config
   (progn
     (with-eval-after-load 'company
@@ -614,7 +603,8 @@ Called via the `after-load-functions' special hook."
 #+END_SRC
 ** expand-region
 #+BEGIN_SRC emacs-lisp
-(use-package expand-region)
+(use-package expand-region
+  :defer t)
 #+END_SRC
 ** help-fns
 #+BEGIN_SRC emacs-lisp
@@ -625,6 +615,7 @@ Called via the `after-load-functions' special hook."
 ** smartparens
 #+BEGIN_SRC emacs-lisp
 (use-package smartparens
+  :defer t
   :ensure t
   :config
   (add-hook 'python-mode-hook #'smartparens-mode)
@@ -634,6 +625,7 @@ Called via the `after-load-functions' special hook."
 ** magit
 #+BEGIN_SRC emacs-lisp
 (use-package magit
+  :defer t
   :ensure t
   :bind (:map magit-file-section-map
               ("u" . nil)
@@ -642,10 +634,13 @@ Called via the `after-load-functions' special hook."
 ** yasnippet
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
-:ensure t)
-(setq yas-snippet-dirs '("~/.emacs.d/snippets"))
-(yas-global-mode 1)
-(define-key yas-keymap (kbd "C-d") 'yas-skip-and-clear-or-delete-char)
+  :defer t
+  :ensure t
+  :config
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+  (yas-global-mode 1)
+  (define-key yas-keymap (kbd "C-d") 'yas-skip-and-clear-or-delete-char)
+)
 #+END_SRC
 ** diff
 #+BEGIN_SRC emacs-lisp
@@ -672,12 +667,15 @@ Called via the `after-load-functions' special hook."
 (setq reb-re-syntax 'string)
 
 (use-package visual-regexp
+  :defer t
   :ensure t)
 (use-package visual-regexp-steroids
+  :defer t
   :ensure t
   :config
   (setq vr/engine 'pcre2el))
 (use-package pcre2el
+  :defer t
   :ensure t)
 #+END_SRC
 ** diminish
@@ -687,6 +685,7 @@ Called via the `after-load-functions' special hook."
              (lambda () (setq mode-name ,abbrev))))
 
 (use-package diminish
+  :demand t
   :ensure t
   :config
   (progn
@@ -707,19 +706,24 @@ Called via the `after-load-functions' special hook."
 ** dired
 #+BEGIN_SRC emacs-lisp
 (use-package dired
+  :defer t
   :ensure nil
   :bind (:map dired-mode-map
          ("C-<return>" . xah-open-in-external-app)
          ("M-<return>" . kde-open-in-terminal)))
 
 (use-package dired+
- :ensure t
+  :after dired
+  :ensure t
   :config
   (setq ls-lisp-dirs-first t))
 
 (use-package tramp-hdfs
+  :defer t
   :ensure t)
 (use-package all-the-icons-dired
+  :after dired
+  :defer t
   :ensure t
   :config
   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
@@ -727,22 +731,26 @@ Called via the `after-load-functions' special hook."
 ** highlight-symbol
 #+BEGIN_SRC emacs-lisp
 (use-package auto-highlight-symbol
+  :defer t
   :ensure t
   :config
   (global-auto-highlight-symbol-mode t))
 
 (use-package highlight-symbol
+  :defer t
   :ensure t)
 #+END_SRC
 ** dict
 #+BEGIN_SRC emacs-lisp
 (use-package google-translate
+  :defer t
   :ensure t
   :config
   (setq google-translate-default-source-language "en")
   (setq google-translate-default-target-language "ru"))
 
 (use-package multitran
+  :defer t
   :ensure t)
 
 (defun multitran-custom ()
@@ -750,6 +758,7 @@ Called via the `after-load-functions' special hook."
   (multitran--word (thing-at-point 'word)))
 
 (use-package thesaurus
+  :defer t
   :ensure t
   :config
   (setq thesaurus-bhl-api-key "72dd7311ba167ef0ae7d2c1585959e6b")
@@ -776,6 +785,7 @@ Called via the `after-load-functions' special hook."
 ** key-chord
 #+BEGIN_SRC emacs-lisp
 (use-package key-chord
+  :defer t
   :ensure t
   :config
   (key-chord-mode 1)
@@ -785,6 +795,7 @@ Called via the `after-load-functions' special hook."
 #+BEGIN_SRC emacs-lisp
 
 (use-package flycheck
+  :defer t
   :ensure t
   :config
   ;; (global-flycheck-mode)
@@ -794,11 +805,13 @@ Called via the `after-load-functions' special hook."
 ** corral
 #+BEGIN_SRC emacs-lisp
 (use-package corral
+  :defer t
   :ensure t)
 #+END_SRC
 ** popwin
 #+BEGIN_SRC emacs-lisp
 (use-package popwin
+  :defer t
   :ensure t
   :config
   (popwin-mode 1)
@@ -807,12 +820,14 @@ Called via the `after-load-functions' special hook."
 ** jump
 #+BEGIN_SRC emacs-lisp
 (use-package dumb-jump
+  :defer t
   :ensure t)
 #+END_SRC
 ** projectile
 
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
+  :defer t
   :ensure t
   :config
   (projectile-global-mode))
@@ -825,6 +840,7 @@ Called via the `after-load-functions' special hook."
    ))
 
 (use-package helm-projectile
+  :defer t
   :ensure t)
 #+END_SRC
 * Mode configuration
@@ -838,6 +854,7 @@ Called via the `after-load-functions' special hook."
 *** paredit
 #+BEGIN_SRC emacs-lisp
 (use-package paredit
+  :defer t
   :ensure t
   :diminish paredit-mode
   :init
@@ -995,6 +1012,7 @@ Called via the `after-load-functions' special hook."
 ** python
 #+BEGIN_SRC emacs-lisp
 (use-package elpy
+  :defer t
   :config
   (progn
     (elpy-enable)
@@ -1012,11 +1030,13 @@ Called via the `after-load-functions' special hook."
     ;; (setq jedi:setup-keys t)
     ))
 
-(use-package realgud)
+(use-package realgud
+  :defer t)
 
 (require 'cl)
 
 (use-package ein
+  :defer t
   :config
   (progn
     (require 'websocket)
@@ -1029,6 +1049,7 @@ Called via the `after-load-functions' special hook."
   )
 
 (use-package virtualenvwrapper
+  :defer t
   :config
   (venv-initialize-interactive-shells)
   (venv-initialize-eshell)
@@ -1059,6 +1080,7 @@ Called via the `after-load-functions' special hook."
   (add-to-list 'company-backends 'company-jedi))
 
 (use-package ob-ipython
+  :defer t
   :ensure t
   :config
   (setq org-confirm-babel-evaluate nil)
@@ -1067,44 +1089,49 @@ Called via the `after-load-functions' special hook."
 #+END_SRC
 ** org
 #+BEGIN_SRC emacs-lisp
+(use-package org
+  :defer t
+  :mode ("\\.txt\\'" . org-mode)
+  :init
+  (add-hook 'org-mode-hook
+	    (lambda ()
+	      (progn
+		(org-bullets-mode t)
+		(define-key org-mode-map (kbd "M-H") 'org-metaleft)
+		(define-key org-mode-map (kbd "M-N") 'org-metaright))))    
 
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((lisp . t)
-   (python . t)
-   (shell . t)))
+  :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((lisp . t)
+     (python . t)
+     (shell . t)))
+  
+  (setq org-src-tab-acts-natively t)
+  (setq org-agenda-files '("d:/datalex/doc/org/"))
+  (setq org-log-done 'time)
+  (setq org-src-fontify-natively t)
+  (setq org-edit-src-content-indentation 0)
+  (setq org-ellipsis " ↴")
+  
+  (setq org-src-window-setup 'current-window)
+  (add-to-list 'org-structure-template-alist
+	       '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
 
-(add-hook 'org-mode-hook
-	  (lambda ()
-	    (progn
-	      (org-bullets-mode t)
-	      (define-key org-mode-map (kbd "M-H") 'org-metaleft)
-	      (define-key org-mode-map (kbd "M-N") 'org-metaright))))
-
-(add-to-list 'auto-mode-alist '("\\.txt$" . org-mode))
-(setq org-src-tab-acts-natively t)
-(setq org-agenda-files '("d:/datalex/doc/org/"))
-(setq org-log-done 'time)
-(setq org-src-fontify-natively t)
-(setq org-edit-src-content-indentation 0)
-(setq org-ellipsis " ↴")
-
-(setq org-src-window-setup 'current-window)
-(add-to-list 'org-structure-template-alist
-	     '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
-
-(use-package ox-hugo
-  :after ox)
-
-(org-add-link-type "karabiner" 'open-pdf-from-library
+  (org-add-link-type "karabiner" 'open-pdf-from-library
                      (lambda (path desc format)
                        (format "[%s](%s:%s)" desc "karabiner" path)))
+  )
 
+(use-package ox-hugo
+  :defer t
+  :after ox)
 #+END_SRC
 ** web
 
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
+  :defer t
   :ensure t
   :config
   (add-hook 'web-mode-hook 'smartparens-mode)
@@ -1118,12 +1145,14 @@ Called via the `after-load-functions' special hook."
     (sp-local-tag "#" "<%# " " %>")))
 
 (use-package emmet-mode
+  :defer t
   :ensure t
   :config
   (add-hook 'web-mode-hook 'emmet-mode)
   (add-hook 'html-mode-hook 'emmet-mode))
 
 (use-package rainbow-mode
+  :defer t
   :ensure t
   :config
   (add-hook 'html-mode-hook 'rainbow-mode)
@@ -1134,6 +1163,7 @@ Called via the `after-load-functions' special hook."
 
 #+BEGIN_SRC emacs-lisp
   (use-package js2-mode
+    :defer t
     :ensure t
   )
 
@@ -1150,6 +1180,7 @@ Called via the `after-load-functions' special hook."
     (company-mode +1))
 
   (use-package tide
+    :defer t
     :ensure t)
 
 
@@ -1158,6 +1189,7 @@ Called via the `after-load-functions' special hook."
   (add-hook 'typescript-mode-hook #'setup-tide-mode)
 
   (use-package skewer-mode
+    :defer t
     :ensure t
     :config
     (add-hook 'html-mode-hook 'skewer-html-mode)
@@ -1175,9 +1207,11 @@ Called via the `after-load-functions' special hook."
 ** clojure
 #+BEGIN_SRC emacs-lisp
 (use-package clojure-mode
+  :defer t
   :hook ((clojure-mode . cider-mode)
 	 (clojure-mode . enable-paredit-mode)))
 (use-package cider
+  :defer t
   :hook ((cider-mode . company-mode)
          (cider-repl-mode . company-mode)))
 #+END_SRC

@@ -3,6 +3,75 @@
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
+
+(defconst emacs-start-time (current-time))
+(defvar file-name-handler-alist-old file-name-handler-alist)
+
+(add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+(add-to-list 'default-frame-alist '(font . "Fira Mono 13"))
+
+(setq package-enable-at-startup nil
+      file-name-handler-alist nil
+      message-log-max 16384
+      gc-cons-threshold 402653184
+      gc-cons-percentage 0.6
+      auto-window-vscroll nil)
+
+(add-hook 'after-init-hook
+          `(lambda ()
+             (setq file-name-handler-alist file-name-handler-alist-old
+                   gc-cons-threshold 800000
+                   gc-cons-percentage 0.1)
+             (garbage-collect)) t)
+
 (package-initialize)
 
 (org-babel-load-file "~/.emacs.d/emacs.org")
+
+(let ((elapsed (float-time (time-subtract (current-time)
+                                          emacs-start-time))))
+  (message "Loading %s...done (%.3fs)" load-file-name elapsed))
+
+(add-hook 'after-init-hook
+          `(lambda ()
+             (let ((elapsed
+                    (float-time
+                     (time-subtract (current-time) emacs-start-time))))
+               (message "Loading %s...done (%.3fs) [after-init]"
+                        ,load-file-name elapsed))) t)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(auto-save-default nil)
+ '(backup-by-copying t)
+ '(bookmark-save-flag t)
+ '(case-fold-search nil)
+ '(delete-selection-mode t)
+ '(global-hl-line-mode t)
+ '(icicle-ido-like-mode nil)
+ '(icicle-mode nil)
+ '(inhibit-startup-screen t)
+ '(make-backup-files nil)
+ '(menu-bar-mode nil)
+ '(ns-command-modifier (quote control))
+ '(package-selected-packages
+   (quote
+    (ace-window which-key web-mode visual-regexp-steroids virtualenvwrapper use-package undo-tree tramp-hdfs tide thesaurus switch-window spaceline solarized-theme smartparens realgud rainbow-mode popwin pcre2el paredit ox-hugo osx-pseudo-daemon org-bullets ob-ipython nlinum neotree multitran multiple-cursors markdown-mode magit mac-pseudo-daemon key-chord jedi highlight-symbol helm-projectile helm-describe-modes helm-descbinds helm-dash helm-ag google-translate fzf font-lock+ expand-region exec-path-from-shell emmet-mode elpy ein dumb-jump dired+ diminish delight dash-at-point corral company-jedi cider buffer-move auto-highlight-symbol all-the-icons-dired ag)))
+ '(ring-bell-function (quote ignore))
+ '(scroll-bar-mode nil)
+ '(scroll-conservatively 100)
+ '(show-paren-mode t)
+ '(tool-bar-mode nil)
+ '(tooltip-mode nil)
+ '(truncate-lines t)
+ '(visible-bell t)
+ '(winner-mode t))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

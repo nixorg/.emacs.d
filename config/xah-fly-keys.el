@@ -2274,6 +2274,7 @@ Version 2017-01-27"
           (string-equal xah-fly-key--current-layout "dvorak"))
       *charstr
     (xah--dvorak-to-qwerty *charstr)))
+
 (defvar ru-layout-alist)
 (setq ru-layout-alist
       '(
@@ -2477,8 +2478,8 @@ Version 2017-01-21"
    ("a" . apropos-command)
    ("b" . describe-bindings)
    ("c" . describe-char)
-   ("d" . apropos-documentation)
-   ("e" . view-echo-area-messages)
+   ("d" . dash-at-point)
+   ("m" . view-echo-area-messages)
    ("f" . describe-function)
    ("g" . info-lookup-symbol)
    ("h" . describe-face)
@@ -2487,7 +2488,7 @@ Version 2017-01-21"
    ("k" . describe-key)
    ("K" . Info-goto-emacs-key-command-node)
    ("l" . view-lossage)
-   ("m" . xah-describe-major-mode)
+   ;; ("m" . xah-describe-major-mode)
    ("n" . apropos-value)
    ("o" . describe-language-environment)
    ("p" . finder-by-keyword)
@@ -3033,7 +3034,7 @@ Version 2017-01-21"
 
      ("w" . xah-next-window-or-frame)
 
-     ("W" . kill-buffer-and-window)
+     ("W" . ace-delete-window)
 
      ("x" . helm-bookmarks)
      ("y" . set-mark-command)

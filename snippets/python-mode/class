@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: c
+# key: c
+# --
+class $1:
+    def __init__(self):
+        $2
+

@@ -1,0 +1,16 @@
+.#recentf
+.DS_Store
+.emacs-custom.el
+.mc-lists.el
+auto-save-list
+elpa
+eshell
+img
+url
+bookmarks
+network-sucurity.data
+projectile-bookmarks.eld
+network-security.data
+recentf
+tramp
+emacs.el

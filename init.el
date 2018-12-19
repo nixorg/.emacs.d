@@ -54,12 +54,15 @@
  '(icicle-ido-like-mode nil)
  '(icicle-mode nil)
  '(inhibit-startup-screen t)
+ '(large-file-warning-threshold 100000000)
  '(make-backup-files nil)
  '(menu-bar-mode nil)
  '(ns-command-modifier (quote control))
+ '(ns-pop-up-frames nil)
  '(package-selected-packages
    (quote
-    (ace-window which-key web-mode visual-regexp-steroids virtualenvwrapper use-package undo-tree tramp-hdfs tide thesaurus switch-window spaceline solarized-theme smartparens realgud rainbow-mode popwin pcre2el paredit ox-hugo osx-pseudo-daemon org-bullets ob-ipython nlinum neotree multitran multiple-cursors markdown-mode magit mac-pseudo-daemon key-chord jedi highlight-symbol helm-projectile helm-describe-modes helm-descbinds helm-dash helm-ag google-translate fzf font-lock+ expand-region exec-path-from-shell emmet-mode elpy ein dumb-jump dired+ diminish delight dash-at-point corral company-jedi cider buffer-move auto-highlight-symbol all-the-icons-dired ag)))
+    (editorconfig vue-mode company-tern tern ace-window which-key web-mode visual-regexp-steroids virtualenvwrapper use-package undo-tree tramp-hdfs tide thesaurus switch-window spaceline solarized-theme smartparens realgud rainbow-mode popwin pcre2el paredit ox-hugo osx-pseudo-daemon org-bullets ob-ipython nlinum neotree multitran multiple-cursors markdown-mode magit mac-pseudo-daemon key-chord jedi highlight-symbol helm-projectile helm-describe-modes helm-descbinds helm-dash helm-ag google-translate fzf font-lock+ expand-region exec-path-from-shell emmet-mode elpy ein dumb-jump dired+ diminish delight dash-at-point corral company-jedi cider buffer-move auto-highlight-symbol all-the-icons-dired ag)))
+ '(powerline-image-apple-rgb t)
  '(ring-bell-function (quote ignore))
  '(scroll-bar-mode nil)
  '(scroll-conservatively 100)
@@ -68,6 +71,7 @@
  '(tooltip-mode nil)
  '(truncate-lines t)
  '(visible-bell t)
+ '(which-key-mode t)
  '(winner-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

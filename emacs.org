@@ -463,6 +463,7 @@ Called via the `after-load-functions' special hook."
 (define-key xah-fly-key-map (kbd "C-o") 'helm-find-files)
 (define-key xah-fly-key-map (kbd "C-k") 'yank)
 (define-key xah-fly-key-map (kbd "C-y") 'company-complete)
+
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 (defun quit-command()
@@ -598,6 +599,7 @@ Called via the `after-load-functions' special hook."
   :ensure t
   :init
   (setq mc/always-run-for-all t)
+  (setq mc/cmds-to-run-once '())
   (global-set-key (kbd "C-8") 'mc/mark-all-like-this)
   (global-set-key (kbd "M-8") 'vr/mc-mark)
   ;; :config

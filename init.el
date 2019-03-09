@@ -56,14 +56,22 @@
  '(inhibit-startup-screen t)
  '(large-file-warning-threshold 100000000)
  '(make-backup-files nil)
+ '(mc/always-run-for-all t)
+ '(mc/cmds-to-run-once (quote nil) t)
  '(menu-bar-mode nil)
  '(ns-command-modifier (quote control))
  '(ns-pop-up-frames nil)
+ '(org-modules
+   (quote
+    (org-bbdb org-bibtex org-docview org-gnus org-info org-irc org-mhe org-rmail org-w3m org-wikinodes)))
+ '(org-wikinodes-active t)
+ '(org-wikinodes-scope (quote directory))
  '(package-selected-packages
    (quote
-    (editorconfig vue-mode company-tern tern ace-window which-key web-mode visual-regexp-steroids virtualenvwrapper use-package undo-tree tramp-hdfs tide thesaurus switch-window spaceline solarized-theme smartparens realgud rainbow-mode popwin pcre2el paredit ox-hugo osx-pseudo-daemon org-bullets ob-ipython nlinum neotree multitran multiple-cursors markdown-mode magit mac-pseudo-daemon key-chord jedi highlight-symbol helm-projectile helm-describe-modes helm-descbinds helm-dash helm-ag google-translate fzf font-lock+ expand-region exec-path-from-shell emmet-mode elpy ein dumb-jump dired+ diminish delight dash-at-point corral company-jedi cider buffer-move auto-highlight-symbol all-the-icons-dired ag)))
+    (org-gcal calfw-ical calfw-org calfw org-caldav org-brain org-download org-journal org-super-agenda hydra editorconfig vue-mode company-tern tern ace-window which-key web-mode visual-regexp-steroids virtualenvwrapper use-package undo-tree tramp-hdfs tide thesaurus switch-window spaceline solarized-theme smartparens realgud rainbow-mode popwin pcre2el paredit ox-hugo osx-pseudo-daemon org-bullets ob-ipython nlinum neotree multitran multiple-cursors markdown-mode magit mac-pseudo-daemon key-chord jedi highlight-symbol helm-projectile helm-describe-modes helm-descbinds helm-dash helm-ag google-translate fzf font-lock+ expand-region exec-path-from-shell emmet-mode elpy ein dumb-jump dired+ diminish delight dash-at-point corral company-jedi cider buffer-move auto-highlight-symbol all-the-icons-dired ag)))
  '(powerline-image-apple-rgb t)
  '(ring-bell-function (quote ignore))
+ '(safe-local-variable-values (quote ((org-image-actual-width))))
  '(scroll-bar-mode nil)
  '(scroll-conservatively 100)
  '(show-paren-mode t)

@@ -1214,6 +1214,7 @@ _o_: clock-out
   :defer t
   :mode ("\\.txt\\'" . org-mode)
   :init
+  (require 'org-protocol)
   (add-hook 'org-mode-hook
 	    (lambda ()
 	      (progn
@@ -1277,7 +1278,11 @@ _o_: clock-out
 	  ("n" "Note" entry (file "~/Dropbox/org/Inbox.org")
            "* %?\n  %i\n")
 	  ("j" "Journal" entry (file+olp+datetree "~/Dropbox/org/journal.org") 
-	   "** %^{heading}\n- %?\n%U") 
+	   "** %^{heading}\n- %?\n%U")
+	  ("p" "Protocol" entry (file "~/Dropbox/org/Inbox.org")
+           "* %? [[%:link][%:description]] \n%i\n%c\n" :immediate-finish t)
+	  ("w" "Protocol" entry (file "~/Dropbox/org/Inbox.org")
+           "* %? [[%:link][%:description]] \n%i\n" :immediate-finish t)
 	  )))
 
 (defun make-orgcapture-frame ()

@@ -1424,14 +1424,4 @@ _o_: clock-out
 	   (if (not (equal interest nil))
 	       (list (cons "data" data) (cons "interest" interest))))
 	 )))))
-
-(use-package org-gcal
-  :ensure t
-  :config
-  (setq org-gcal-client-id "474895922673-mmad1elpemidmgm6dbp46gbm023s45k7.apps.googleusercontent.com"
-      org-gcal-client-secret "-0EWLxaXdL2AsbvTHm1-o8jQ"
-      org-gcal-file-alist '(("nixorg@gmail.com" .  "~/Dropbox/org/gcal.org")
-                            ))
-  )
-
 #+END_SRC

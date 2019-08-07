@@ -16,7 +16,6 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
 (require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/")   t)
-(package-initialize)
 
 (eval-and-compile
   (unless (package-installed-p 'use-package)
@@ -60,6 +59,7 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
  '(mc/cmds-to-run-once '())  
 
 )
+
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 (prefer-coding-system 'utf-8)
@@ -152,11 +152,15 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
       (if (or (eq major-mode 'js2-mode)
               (eq major-mode 'html-mode)
               (eq major-mode 'css-mode))
-          (skewer-html-eval-tag))
+          (run-js))
       (if (string-equal major-mode "clojure-mode")
           (cider-eval-sexp-at-point)) 
       (if (eq major-mode 'python-mode)
           (elpy-shell-send-region-or-buffer))))
+
+  (defun run-js ()
+    (interactive)
+    (shell-command (concat "node " (buffer-name))))
 
   (defun custom-eval-double ()
     (interactive)
@@ -459,7 +463,7 @@ Called via the `after-load-functions' special hook."
 #+begin_src emacs-lisp
 (define-key xah-fly--tab-key-map (kbd "x") 'indent-xml)
 (define-key xah-fly-e-keymap (kbd "k") 'paste-xml)
-(define-key xah-fly-leader-key-map (kbd "u") 'helm-mini)
+(define-key xah-fly-leader-key-map (kbd "f") 'helm-mini)
 
 (define-key xah-fly-key-map (kbd "C-r") 'nil)
 (define-key xah-fly-key-map (kbd "C-r") 'helm-projectile-find-file)
@@ -496,6 +500,7 @@ Called via the `after-load-functions' special hook."
    ("h" . hydra-org-clock-menu/body)
    ("c" . org-capture)
    ("o" . org-open-at-point)
+   ("i" . org-toggle-inline-images)
    ("j" . (lambda () (interactive) (org-capture nil "j")))
    ))
 #+END_SRC
@@ -574,6 +579,7 @@ Called via the `after-load-functions' special hook."
   ;(setq helm-move-to-line-cycle-in-source t)
   (setq helm-autoresize-max-height 0)
   (setq helm-autoresize-min-height 40)
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
   (helm-autoresize-mode 1)
   :bind (("C-f" . helm-occur)
          :map helm-map
@@ -633,10 +639,10 @@ Called via the `after-load-functions' special hook."
 ** expand-region
 #+BEGIN_SRC emacs-lisp
 (use-package expand-region
-  :defer t)
-
-;; fix expand behavior in org-mode
-(defun er--expand-region-1 ()
+  :defer t
+  :config 
+  ;; fix expand behavior in org-mode
+  (defun er--expand-region-1 ()
   "Increase selected region by semantic units.
 Basically it runs all the mark-functions in `er/try-expand-list'
 and chooses the one that increases the size of the region while
@@ -693,6 +699,10 @@ moving point or mark as little as possible."
     (when (and (= best-start (point-min))
                (= best-end (point-max))) ;; We didn't find anything new, so exit early
       'early-exit)))
+)
+
+
+
 #+END_SRC
 ** help-fns
 #+BEGIN_SRC emacs-lisp
@@ -722,11 +732,10 @@ moving point or mark as little as possible."
 ** yasnippet
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
-  :defer t
   :ensure t
   :config
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
-  (yas-global-mode 1)
+  (yas-global-mode nil)
   (define-key yas-keymap (kbd "C-d") 'yas-skip-and-clear-or-delete-char)
 )
 #+END_SRC
@@ -798,20 +807,17 @@ moving point or mark as little as possible."
   :ensure nil
   :bind (:map dired-mode-map
          ("C-<return>" . xah-open-in-external-app)
-         ("M-<return>" . kde-open-in-terminal)))
-
-(use-package dired+
-  :after dired
-  :ensure t
+         ("RET" . dired-find-alternate-file)
+         ("M-<return>" . kde-open-in-terminal))
   :config
-  (setq ls-lisp-dirs-first t))
+  (add-hook 'dired-mode-hook 'dired-hide-details-mode))
 
 (use-package tramp-hdfs
   :defer t
   :ensure t)
+
 (use-package all-the-icons-dired
   :after dired
-  :defer t
   :ensure t
   :config
   (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
@@ -845,30 +851,6 @@ moving point or mark as little as possible."
   (interactive)
   (multitran--word (thing-at-point 'word)))
 
-(use-package thesaurus
-  :defer t
-  :ensure t
-  :config
-  (setq thesaurus-bhl-api-key "72dd7311ba167ef0ae7d2c1585959e6b")
-
-  (defun thesaurus-fetch-synonyms (word)
-    "fetch synonyms for the given word, from a remote source."
-    (let ((synonym-list nil)
-          (buf (thesaurus-get-buffer-for-word word)))
-      (if buf
-          (progn
-            (with-current-buffer buf
-              (rename-buffer (concat "*thesaurus* - " word) t)
-              (goto-char (point-min))
-              (thesaurus-process-http-headers)
-              (while (not (= (point-min) (point-max)))
-                (let ((elt (thesaurus-parse-one-line)))
-                  (if elt
-                      (add-to-list 'synonym-list elt)))))
-            (kill-buffer buf)
-            (nreverse synonym-list)
-            )))))
-
 #+END_SRC
 ** key-chord
 #+BEGIN_SRC emacs-lisp
@@ -881,12 +863,11 @@ moving point or mark as little as possible."
 #+END_SRC
 ** flycheck
 #+BEGIN_SRC emacs-lisp
-
 (use-package flycheck
   :defer t
   :ensure t
   :config
-  ;; (global-flycheck-mode)
+  (global-flycheck-mode)
 )
 
 #+END_SRC
@@ -936,7 +917,11 @@ moving point or mark as little as possible."
 #+BEGIN_SRC emacs-lisp
 (use-package neotree
   :ensure t
-  :config (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
+  :config
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  (setq neo-smart-open t)
+  (setq projectile-switch-project-action 'neotree-projectile-action)
+)
 #+END_SRC
 ** editorconfig
 #+BEGIN_SRC emacs-lisp
@@ -961,6 +946,49 @@ _o_: clock-out
   ("c" org-clock-in)
   ("o" org-clock-out)
   ("q" nil "quit" :color blue)
+  )
+#+END_SRC
+** osx-dict
+#+BEGIN_SRC emacs-lisp
+(use-package osx-dictionary
+  :ensure t)
+#+END_SRC
+** restclient
+#+BEGIN_SRC emacs-lisp
+(use-package restclient
+  :ensure t)
+
+(use-package ob-restclient
+  :ensure t)
+#+END_SRC
+** http
+#+BEGIN_SRC emacs-lisp
+(use-package ob-http
+  :ensure t)
+#+END_SRC
+** anki
+#+BEGIN_SRC emacs-lisp
+(use-package anki-editor
+  :ensure t
+  :config
+  (setq anki-editor-create-decks t))
+#+END_SRC
+** mind-map 
+#+BEGIN_SRC emacs-lisp
+(use-package org-mind-map
+  :init
+  (require 'ox-org)
+  :ensure t
+  ;; Uncomment the below if 'ensure-system-packages` is installed
+  ;;:ensure-system-package (gvgen . graphviz)
+  :config
+  (setq org-mind-map-engine "dot")       ; Default. Directed Graph
+  ;; (setq org-mind-map-engine "neato")  ; Undirected Spring Graph
+  ;; (setq org-mind-map-engine "twopi")  ; Radial Layout
+  ;; (setq org-mind-map-engine "fdp")    ; Undirected Spring Force-Directed
+  ;; (setq org-mind-map-engine "sfdp")   ; Multiscale version of fdp for the layout of large graphs
+  ;; (setq org-mind-map-engine "twopi")  ; Radial layouts
+  ;; (setq org-mind-map-engine "circo")  ; Circular Layout
   )
 #+END_SRC
 * Mode configuration
@@ -1135,21 +1163,20 @@ _o_: clock-out
 (use-package elpy
   :defer t
   :config
-  (progn
     (elpy-enable)
     ;; (setq Exec-path (append exec-path '("c:/Program Files (x86)/Python3/Scripts")))
     ;;(setq Exec-path (append exec-path '("c:/Users/Yauheni_Kuzmianok/.virtualenv/Scripts")))
     ;;(pyvenv-activate "~/.virtualenv")
-    ;;(elpy-use-ipython)
-    (setq python-shell-interpreter "ipython"
-          python-shell-interpreter-args "--simple-prompt -i")
+    ;; (elpy-use-ipython)
+    ;; (setq python-shell-interpreter "ipython3"
+    ;;       python-shell-interpreter-args "--simple-prompt -i")
     ;; (setenv "PYTHONIOENCODING" "UTF-8")
     (setq elpy-rpc-backend "jedi")
     (setq elpy-rpc-python-command "python3")
-    ;; (setq elpy-rpc-py "jedi")
+    (setq elpy-rpc-py "jedi")
     (setq jedi:complete-on-dot t)
     ;; (setq jedi:setup-keys t)
-    ))
+)
 
 (use-package realgud
   :defer t)
@@ -1219,8 +1246,8 @@ _o_: clock-out
 	    (lambda ()
 	      (progn
 		(org-bullets-mode t)
-		(define-key org-mode-map (kbd "M-H") 'org-metaleft)
-		(define-key org-mode-map (kbd "M-N") 'org-metaright)
+		(define-key org-mode-map (kbd "C-j") 'org-metaleft)
+		(define-key org-mode-map (kbd "C-l") 'org-metaright)
 		(setq org-file-apps (append
 				     '( ("\\.jpg\\'" . default)
 					("\\.png\\'" . default))
@@ -1229,11 +1256,17 @@ _o_: clock-out
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((lisp . t)
+     (emacs-lisp . t)
      (python . t)
-     (shell . t)))
+     (shell . t)
+     (js . t)
+     (restclient . t)
+     (ruby . t)
+     (http . t)
+     (dot . t)))
 
 
-  
+
   (setq org-src-tab-acts-natively t)
   (setq org-agenda-files '("~/Dropbox/org"))
   (setq org-log-done 'time)
@@ -1242,55 +1275,275 @@ _o_: clock-out
   (setq org-ellipsis " ↴")
   (setq org-refile-targets
 	'(("personal.org" :maxlevel . 1)
-          ("work.org" :maxlevel . 1)
-          ("people.org" :maxlevel . 1)
-          ("music.org" :maxlevel . 1)
-          ("routine.org" :maxlevel . 1)
-          ("auto.org" :maxlevel . 1)
-          ("Ania.org" :maxlevel . 1)
-          ("games.org" :maxlevel . 1)
-          ("true.org" :maxlevel . 1)
-          ("rabbits.org" :maxlevel . 1)
-          ("issues.org" :maxlevel . 1)
-          ("movie.org" :maxlevel . 1)
-          ("quotes.org" :maxlevel . 1)
-          ("true.org" :maxlevel . 1)
-          ("japanese.org" :maxlevel . 1)
+	  ("work.org" :maxlevel . 1)
+	  ("people.org" :maxlevel . 1)
+	  ("music.org" :maxlevel . 1)
+	  ("routine.org" :maxlevel . 1)
+	  ("auto.org" :maxlevel . 1)
+	  ("Ania.org" :maxlevel . 1)
+	  ("games.org" :maxlevel . 1)
+	  ("true.org" :maxlevel . 1)
+	  ("rabbits.org" :maxlevel . 1)
+	  ("issues.org" :maxlevel . 1)
+	  ("movie.org" :maxlevel . 1)
+	  ("quotes.org" :maxlevel . 1)
+	  ("true.org" :maxlevel . 1)
+	  ("japanese.org" :maxlevel . 1)
 	  ))
 
   (setq org-agenda-custom-commands 
-      '(("w" "Work"
-	 ((agenda "" ((org-agenda-files '("~/Dropbox/org/work.org"))))
-	  (alltodo "" ((org-agenda-overriding-header "Work todo items")(org-agenda-files '("~/Dropbox/org/work.org")))))
-	 )
-        ))
-  
+	'(("w" "Work"
+	   ((agenda "" ((org-agenda-files '("~/Dropbox/org/work.org"))))
+	    (alltodo "" ((org-agenda-overriding-header "Work todo items")(org-agenda-files '("~/Dropbox/org/work.org")))))
+	   )
+	  ))
+
   (setq org-src-window-setup 'current-window)
   (add-to-list 'org-structure-template-alist
 	       '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
 
   (org-add-link-type "karabiner" 'open-pdf-from-library
-                     (lambda (path desc format)
-                       (format "[%s](%s:%s)" desc "karabiner" path)))
+		     (lambda (path desc format)
+		       (format "[%s](%s:%s)" desc "karabiner" path)))
+  (defun jira-ext (jira)
+    (browse-url (concat jira-path (car (cdr (split-string jira "-"))))))
+  (org-add-link-type "jira" 'jira-ext)
+
+
+
+  (add-to-list 'helm-completing-read-handlers-alist '(org-capture . aj/org-completing-read-tags))
+  (add-to-list 'helm-completing-read-handlers-alist '(org-set-tags . aj/org-completing-read-tags))
   (setq org-capture-templates
 	'(("t" "Todo" entry (file "~/Dropbox/org/Inbox.org")
-           "* TODO %?\n  %i\n  %a")
+	   "* TODO %?\n  %i\n  %a")
 	  ("n" "Note" entry (file "~/Dropbox/org/Inbox.org")
-           "* %?\n  %i\n")
+	   "* %?\n  %i\n")
 	  ("j" "Journal" entry (file+olp+datetree "~/Dropbox/org/journal.org") 
-	   "** %^{heading}\n- %?\n%U")
+	   "** %a :%(my/expense-template):\n- %i%?\n%U")
 	  ("p" "Protocol" entry (file "~/Dropbox/org/Inbox.org")
-           "* %? [[%:link][%:description]] \n%i\n%c\n" :immediate-finish t)
+	   "* %? [[%:link][%:description]] \n%i\n%c\n" :immediate-finish t)
 	  ("w" "Protocol" entry (file "~/Dropbox/org/Inbox.org")
-           "* %? [[%:link][%:description]] \n%i\n" :immediate-finish t)
-	  )))
+	   "* %? [[%:link][%:description]] \n%i\n" :immediate-finish t)
+	  ))
+  
+  (require 'org-agenda)
+  (defun org-agenda-get-progress ()
+    "Return the logged TODO entries for agenda display."
+    (let* ((props (list 'mouse-face 'highlight
+			'org-not-done-regexp org-not-done-regexp
+			'org-todo-regexp org-todo-regexp
+			'org-complex-heading-regexp org-complex-heading-regexp
+			'help-echo
+			(format "mouse-2 or RET jump to org file %s"
+				(abbreviate-file-name buffer-file-name))))
+	   (items (if (consp org-agenda-show-log-scoped)
+		      org-agenda-show-log-scoped
+		    (if (eq org-agenda-show-log-scoped 'clockcheck)
+			'(clock)
+		      org-agenda-log-mode-items)))
+	   (parts
+	    (delq nil
+		  (list
+		   (if (memq 'closed items) (concat "\\<" org-closed-string))
+		   (if (memq 'clock items) (concat "\\<" org-clock-string))
+		   (if (memq 'state items)
+		       (format "- State \"%s\".*?" org-todo-regexp))
+		   "- Note .*?")))
+	   (parts-re (if parts (mapconcat 'identity parts "\\|")
+		       (error "`org-agenda-log-mode-items' is empty")))
+	   (regexp (concat
+		    "\\(" parts-re "\\)"
+		    " *\\["
+		    (regexp-quote
+		     (substring
+		      (format-time-string
+		       (car org-time-stamp-formats)
+		       (apply 'encode-time  ; DATE bound by calendar
+			      (list 0 0 0 (nth 1 date) (car date) (nth 2 date))))
+		      1 11))))
+	   (org-agenda-search-headline-for-time nil)
+	   marker hdmarker priority category level tags closedp notep
+	   statep clockp state ee txt extra timestr rest clocked inherited-tags)
+      (goto-char (point-min))
+      (while (re-search-forward regexp nil t)
+	(catch :skip
+	  (org-agenda-skip)
+	  (message "%s" "test124")
+	  (message "%s" (match-string 1))
+	  (setq marker (org-agenda-new-marker (match-beginning 0))
+		closedp (equal (match-string 1) org-closed-string)
+		notep (string-match-p "Note" (match-string 1))
+		statep (equal (string-to-char (match-string 1)) ?-)
+		clockp (not (or closedp statep))
+		state (and statep (match-string 2))
+		category (org-get-category (match-beginning 0))
+		timestr (buffer-substring (match-beginning 0) (point-at-eol)))
+	  (when (string-match "\\]" timestr)
+	    ;; substring should only run to end of time stamp
+	    (setq rest (substring timestr (match-end 0))
+		  timestr (substring timestr 0 (match-end 0)))
+	    (if (and (not closedp) (not statep)
+		     (string-match "\\([0-9]\\{1,2\\}:[0-9]\\{2\\}\\)\\].*?\\([0-9]\\{1,2\\}:[0-9]\\{2\\}\\)"
+				   rest))
+		(progn (setq timestr (concat (substring timestr 0 -1)
+					     "-" (match-string 1 rest) "]"))
+		       (setq clocked (match-string 2 rest)))
+	      (setq clocked "-")))
+	  (save-excursion
+	    (setq extra
+		  (cond
+		   ((not org-agenda-log-mode-add-notes) nil)
+		   (statep
+		    (and (looking-at ".*\\\\\n[ \t]*\\([^-\n \t].*?\\)[ \t]*$")
+			 (match-string 1)))
+		   (clockp
+		    (and (looking-at ".*\n[ \t]*-[ \t]+\\([^-\n \t].*?\\)[ \t]*$")
+			 (match-string 1)))))
+	    (message "%s" (concat "- test " extra))
+	    (if (not (re-search-backward org-outline-regexp-bol nil t))
+		(throw :skip nil)
+	      (goto-char (match-beginning 0))
+	      (setq hdmarker (org-agenda-new-marker)
+		    inherited-tags
+		    (or (eq org-agenda-show-inherited-tags 'always)
+			(and (listp org-agenda-show-inherited-tags)
+			     (memq 'todo org-agenda-show-inherited-tags))
+			(and (eq org-agenda-show-inherited-tags t)
+			     (or (eq org-agenda-use-tag-inheritance t)
+				 (memq 'todo org-agenda-use-tag-inheritance))))
+		    tags (org-get-tags-at nil (not inherited-tags))
+		    level (make-string (org-reduced-level (org-outline-level)) ? ))
+	      (looking-at "\\*+[ \t]+\\([^\r\n]+\\)")
+	      (setq txt (match-string 1))
+	      (when extra
+		(if (string-match "\\([ \t]+\\)\\(:[^ \n\t]*?:\\)[ \t]*$" txt)
+		    (setq txt (concat (substring txt 0 (match-beginning 1))
+				      " - " extra " " (match-string 2 txt)))
+		  (setq txt (concat txt " - " extra))))
+	      (setq txt (org-agenda-format-item
+			 (cond
+			  (closedp "Closed:    ")
+			  (notep "Note: ")
+			  (statep (concat "State:     (" state ")"))
+			  (t (concat "Clocked:   (" clocked  ")")))
+			 txt level category tags timestr)))
+	    (setq priority 100000)
+	    (org-add-props txt props
+	      'org-marker marker 'org-hd-marker hdmarker 'face 'org-agenda-done
+	      'priority priority 'level level
+	      'type "closed" 'date date
+	      'undone-face 'org-warning 'done-face 'org-agenda-done)
+	    (push txt ee))
+	  (goto-char (point-at-eol))))
+      (nreverse ee)))
+  
+  )
+
+(use-package org-bullets
+  :ensure t)
+
+(defun my/expense-template ()
+  (file-name-sans-extension (plist-get org-capture-plist :original-file-nondirectory)))
+
+(defun aj/org-completing-read-tags (prompt coll pred req initial hist def inh)
+  (if (not (string= "Tags: " prompt))
+      ;; Not a tags prompt.  Use normal completion by calling
+      ;; `org-icompleting-read' again without this function in
+      ;; `helm-completing-read-handlers-alist'
+      (let ((helm-completing-read-handlers-alist (rassq-delete-all
+						  'aj/org-completing-read-tags
+						  helm-completing-read-handlers-alist)))
+	(org-icompleting-read prompt coll pred req initial hist def inh))
+    ;; Tags prompt
+    (let* ((initial (and (stringp initial)
+			 (not (string= initial ""))
+			 initial))
+	   (curr (when initial
+		   (org-split-string initial ":")))
+	   (table (org-uniquify
+		   (mapcar 'car org-last-tags-completion-table)))
+	   (table (if curr
+		      ;; Remove current tags from list
+		      (cl-delete-if (lambda (x)
+				      (member x curr))
+				    table)
+		    table))
+	   (prompt (if initial
+		       (concat "Tags " initial)
+		     prompt)))
+      (concat initial (mapconcat 'identity
+				 (nreverse (aj/helm-completing-read-multiple
+					    prompt table pred nil nil hist def
+					    t "Org tags" "*Helm org tags*" ":"))
+				 ":")))))
+
+(defun aj/helm-completing-read-multiple (prompt choices
+						&optional predicate require-match initial-input hist def
+						inherit-input-method name buffer sentinel)
+  "Read multiple items with `helm-completing-read-default-1'. Reading stops
+when the user enters SENTINEL. By default, SENTINEL is
+\"*done*\". SENTINEL is disambiguated with clashing completions
+by appending _ to SENTINEL until it becomes unique. So if there
+are multiple values that look like SENTINEL, the one with the
+most _ at the end is the actual sentinel value. See
+documentation for `ido-completing-read' for details on the
+other parameters."
+  (let ((sentinel (or sentinel "*done*"))
+	this-choice res done-reading)
+    ;; Uniquify the SENTINEL value
+    (while (cl-find sentinel choices)
+      (setq sentinel (concat sentinel "_")))
+    (setq choices (cons sentinel choices))
+    ;; Read choices
+    (while (not done-reading)
+      (setq this-choice (helm-completing-read-default-1 prompt choices
+							predicate require-match initial-input hist def
+							inherit-input-method name buffer nil t))
+      (if (equal this-choice sentinel)
+	  (setq done-reading t)
+	(setq res (cons this-choice res))
+	(setq prompt (concat prompt this-choice ":"))))
+    res))
+
+
+(require 'eldoc)
+(defun org-get-description-at-point ()
+  (interactive)
+  (org-element-property :DESCRIPTION (org-element-at-point)))
+
+(defun org-eldoc-get-breadcrumb ()
+  "Return breadcrumb if on a headline or nil."
+  (let ((case-fold-search t) cur)
+    (save-excursion
+      (beginning-of-line)
+      (save-match-data
+	(when (looking-at org-complex-heading-regexp)
+	  (setq cur (match-string 4))
+	  (concat (org-format-outline-path
+		   (append (org-get-outline-path) (list cur))
+		   (frame-width) "" "/") " - ["(org-get-description-at-point) "]"))))))
+
+(defun org-eldoc-documentation-function ()
+  "Return breadcrumbs when on a headline, args for src block header-line,
+  calls other documentation functions depending on lang when inside src body."
+  (or
+   (org-eldoc-get-breadcrumb)))
+
+(defun org-eldoc-load ()
+  "Set up org-eldoc documentation function."
+  (interactive)
+  (setq-local eldoc-documentation-function #'org-eldoc-documentation-function))
+
+(add-hook 'org-mode-hook #'org-eldoc-load)
+
+
 
 (defun make-orgcapture-frame ()
   "Create a new frame and run org-capture."
   (interactive)
   (make-frame '((name . "remember") (width . 80) (height . 16)
-                (top . 400) (left . 300)
-                ))
+		(top . 400) (left . 300)
+		))
   (select-frame-by-name "remember")
   (org-capture))
 
@@ -1411,6 +1664,16 @@ _o_: clock-out
   :hook ((cider-mode . company-mode)
          (cider-repl-mode . company-mode)))
 #+END_SRC
+** pdf
+#+BEGIN_SRC emacs-lisp
+(use-package pdf-tools
+  :ensure t)
+
+(use-package org-pdfview
+  :ensure t)
+
+#+END_SRC
+
 * Scratch
 #+BEGIN_SRC emacs-lisp
 (defun generate-interest-org-data ()
@@ -1425,3 +1688,12 @@ _o_: clock-out
 	       (list (cons "data" data) (cons "interest" interest))))
 	 )))))
 #+END_SRC
+
+
+
+
+
+
+
+
+

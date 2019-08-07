@@ -2681,7 +2681,7 @@ Version 2017-01-21"
    ("r" . xah-fly-r-keymap)
    (";" . helm-semantic-or-imenu)
    ("k" . xah-fly-t-keymap)
-   ("f" . switch-to-buffer)
+   ("f" . helm-mini)
    ("." . nil)
    ("," . xah-fly-w-keymap)
    ("b" . nil)
@@ -2865,7 +2865,7 @@ Version 2017-01-21"
 
       (define-key xah-fly-key-map (kbd "C-.") 'sp-slurp-hybrid-sexp)
       ;; (define-key xah-fly-key-map (kbd "C-.") 'corral-parentheses-forward)
-      (define-key xah-fly-key-map (kbd "C-,") 'corral-parentheses-backward)
+      (define-key xah-fly-key-map (kbd "C-,") 'ace-window)
       (define-key xah-fly-key-map (kbd "C-e") 'sp-splice-sexp)
       
       (define-key xah-fly-key-map (kbd "C-t") 'my-new-line-and-indent)
@@ -2934,6 +2934,7 @@ Version 2017-01-21"
      ("q" . kmacro-start-macro-or-insert-counter)
      ("Q" . kmacro-end-macro)
      ("w" . xah-shrink-whitespaces)
+     ("W" . osx-dictionary-search-word-at-point)
      (":" . xah-cycle-hyphen-underscore-space)
      ("e" . backward-kill-word)
      ("z" . xah-comment-dwim)
@@ -3046,6 +3047,8 @@ Version 2017-01-21"
 
      ("!" . nil)
      ("@" . nil)
+     ("$" . nil)
+     ("#" . nil)
      ("'" . nil)
      ("," . nil)
      ("-" . nil)
@@ -3054,6 +3057,7 @@ Version 2017-01-21"
      ("?" . nil)
      (";" . nil)
      ("=" . nil)
+     ("%" . nil)
      ("[" . nil)
      ("\\" . nil)
      ("]" . nil)

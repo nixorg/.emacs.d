@@ -48,7 +48,7 @@
  '(auto-save-default nil)
  '(backup-by-copying t)
  '(bookmark-save-flag t)
- '(case-fold-search nil)
+ '(case-fold-search t)
  '(delete-selection-mode t)
  '(global-hl-line-mode t)
  '(icicle-ido-like-mode nil)
@@ -57,21 +57,19 @@
  '(large-file-warning-threshold 100000000)
  '(make-backup-files nil)
  '(mc/always-run-for-all t)
- '(mc/cmds-to-run-once (quote nil) t)
+ '(mc/cmds-to-run-once 'nil t)
  '(menu-bar-mode nil)
- '(ns-command-modifier (quote control))
+ '(ns-command-modifier 'control)
  '(ns-pop-up-frames nil)
  '(org-modules
-   (quote
-    (org-bbdb org-bibtex org-docview org-gnus org-info org-irc org-mhe org-rmail org-w3m org-wikinodes)))
+   '(org-bbdb org-bibtex org-docview org-gnus org-info org-irc org-mhe org-rmail org-w3m org-wikinodes))
  '(org-wikinodes-active t)
- '(org-wikinodes-scope (quote directory))
+ '(org-wikinodes-scope 'directory)
  '(package-selected-packages
-   (quote
-    (org-gcal calfw-ical calfw-org calfw org-caldav org-brain org-download org-journal org-super-agenda hydra editorconfig vue-mode company-tern tern ace-window which-key web-mode visual-regexp-steroids virtualenvwrapper use-package undo-tree tramp-hdfs tide thesaurus switch-window spaceline solarized-theme smartparens realgud rainbow-mode popwin pcre2el paredit ox-hugo osx-pseudo-daemon org-bullets ob-ipython nlinum neotree multitran multiple-cursors markdown-mode magit mac-pseudo-daemon key-chord jedi highlight-symbol helm-projectile helm-describe-modes helm-descbinds helm-dash helm-ag google-translate fzf font-lock+ expand-region exec-path-from-shell emmet-mode elpy ein dumb-jump dired+ diminish delight dash-at-point corral company-jedi cider buffer-move auto-highlight-symbol all-the-icons-dired ag)))
- '(powerline-image-apple-rgb t)
- '(ring-bell-function (quote ignore))
- '(safe-local-variable-values (quote ((org-image-actual-width))))
+   '(edit-indirect ox-pandoc htmlize pandoc-mode anki-editor lsp-intellij yaml-mode org-pdfview pdf-tools ob-ruby ob-http ob-restclient restclient vue-mode lsp-vue company-lsp lsp-ui org-jira lsp-mode flymake-python-pyflakes flymake-diagnostic-at-point osx-dictionary speed-type multi-term org-mind-map org-gcal calfw-ical calfw-org calfw org-caldav org-brain org-download org-journal org-super-agenda hydra editorconfig company-tern tern ace-window which-key web-mode visual-regexp-steroids virtualenvwrapper use-package undo-tree tramp-hdfs tide thesaurus switch-window spaceline solarized-theme smartparens realgud rainbow-mode popwin pcre2el paredit ox-hugo osx-pseudo-daemon org-bullets ob-ipython nlinum neotree multitran multiple-cursors markdown-mode magit mac-pseudo-daemon key-chord jedi highlight-symbol helm-projectile helm-describe-modes helm-descbinds helm-dash helm-ag google-translate fzf font-lock+ expand-region exec-path-from-shell emmet-mode ein dumb-jump dired+ diminish delight dash-at-point corral company-jedi cider buffer-move auto-highlight-symbol all-the-icons-dired ag))
+ '(powerline-image-apple-rgb t t)
+ '(ring-bell-function 'ignore)
+ '(safe-local-variable-values '((org-image-actual-width)))
  '(scroll-bar-mode nil)
  '(scroll-conservatively 100)
  '(show-paren-mode t)
@@ -81,9 +79,10 @@
  '(visible-bell t)
  '(which-key-mode t)
  '(winner-mode t))
+(put 'dired-find-alternate-file 'disabled nil)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(company-tooltip-selection ((t (:background "#839496" :foreground "#002b36" :weight bold)))))

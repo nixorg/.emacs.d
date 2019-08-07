@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: jira
+# key: jira
+# --
+** $1
+   :PROPERTIES:
+   :DESCRIPTION: $2
+   :link:     jira:$1 
+   :ID: $1 
+   :END:
+$0

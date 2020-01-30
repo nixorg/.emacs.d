@@ -5,7 +5,6 @@
 
 * General
 ** Intro
-Here is my modal Emacs configuration that has been inspired by Xah Lee
 
 [[./img/editor.png]]
 
@@ -15,6 +14,7 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
 
 (require 'package)
 (setq package-enable-at-startup nil)
+
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/")   t)
 
 (eval-and-compile
@@ -141,7 +141,7 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
   (defun custom-eval-single ()
     (interactive)
     (if (or
-	 (string-equal major-mode "xah-elisp-mode")
+	 (string-equal major-mode "xah-elisp-mode")
 	 (string-equal major-mode "emacs-lisp-mode")
 	 (string-equal major-mode "lisp-mode")
 	 (string-equal major-mode "lisp-interaction-mode")
@@ -229,21 +229,6 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
     (local-set-key (kbd "C-a") 'mark-whole-buffer))
   (add-hook 'minibuffer-setup-hook 'my/paste-in-minibuffer))
 #+end_src
-** Window manipulation
-   #+BEGIN_SRC emacs-lisp
-   (use-package buffer-move
-     :after xah-fly-keys
-     :defer t
-     :ensure t)
-   (use-package ace-window
-     :defer t
-     :ensure t)
-
-   (use-package switch-window
-     :ensure t)
-
-#+END_SRC
-
 * UI
 ** Theme
 #+BEGIN_SRC emacs-lisp
@@ -258,262 +243,51 @@ Here is my modal Emacs configuration that has been inspired by Xah Lee
   (setq solarized-high-contrast-mode-line t)
   (load-theme 'solarized-dark t))
 #+END_SRC
-** Modeline
-#+BEGIN_SRC emacs-lisp
-(use-package spaceline
-  :defer t
-  :ensure t
-  :config
-  (progn
-    (require 'spaceline-config)
-    ;; (spaceline-emacs-theme)
-    (spaceline-helm-mode)
-    ;; (setq powerline-default-separator 'wave)
-    (spaceline-compile)
-    ))
-
-(use-package powerline
-  :after all-the-icons
-  :defer t
-  :ensure t
-  :config
-  (setq powerline-default-separator 'slant))
-
-(setq-default mode-line-format
-	      '(
-                (:eval
-                 (let* ((active (powerline-selected-window-active))
-                        (mode-line-buffer-id (if active 'mode-line-buffer-id-inactive 'mode-line-buffer-id))
-                        (mode-line (if active 'mode-line-inactive 'mode-line))
-                        (face1 (if active 'powerline-inactive2 'powerline-active1))
-                        (face2 (if active 'powerline-inactive1 'powerline-active2))
-                        (face-bold1 (if active 'powerline-inactive-bold-2 'powerline-active-bold-1))
-                        (face-bold2 (if active 'powerline-inactive-bold-1 'powerline-active-bold-2))
-                        (separator-left (intern (format "powerline-%s-%s"
-                                                        (powerline-current-separator)
-                                                        (car powerline-default-separator-dir))))
-                        (separator-right (intern (format "powerline-%s-%s"
-                                                         (powerline-current-separator)
-                                                         (cdr powerline-default-separator-dir))))
-                        (ths (list
-			      (powerline-raw " test" 'face1 'r)
-			      ))
-                        (lhs (list
-			      (powerline-raw (xah-get-current-mode-str) face-bold1 'l)
-			      (powerline-raw "%*  " face1 'l)
-			      (mode-icon face1)
-			      (powerline-buffer-id face-bold1 'l)
-			      (powerline-raw " " face1 'l)
-			      (powerline-narrow face1 'l)
-			      (powerline-raw (custom-modeline-icon-vc face1) face1 'l)))
-                        (rhs (list (powerline-raw global-mode-string face1 'r)
-                                   (custom-modeline-region-info face1)
-                                   (powerline-raw "%4l" face1 'r)
-                                   (powerline-raw ":" face1)
-                                   (powerline-raw "%3c" face1 'r)
-                                   (funcall separator-right face1 mode-line)
-                                   (powerline-raw " " mode-line)
-                                   (powerline-raw "%6p" mode-line 'r)
-                                   (powerline-buffer-size face1 'l)
-                                   (powerline-hud face2 face1)))
-                        (center (list (powerline-raw " " face1)
-				      (funcall separator-left face1 face2)
-				      (when (and (boundp 'erc-track-minor-mode) erc-track-minor-mode)
-                                        (powerline-raw erc-modified-channels-object face2 'l))
-				      (powerline-major-mode face2 'l)
-				      (powerline-process face2)
-				      (powerline-raw " :" face2)
-				      (powerline-minor-modes face2 'l)
-				      (powerline-raw " " face2)
-				      (funcall separator-right face2 face1))))
-                   (concat
-                    (powerline-render lhs)
-                                        ;   (powerline-render ths)
-                    (powerline-fill-center face1 (/ (powerline-width center) 2.0))
-                    (powerline-render center)
-                    (powerline-fill face1 (powerline-width rhs))
-                    (powerline-render rhs)
-                    )))))
-
-(face-spec-set
- 'mode-line
- '((t
-    :box (:line-width 1 :color "#002b36" :style unspecified)
-    :overline "#002b36"
-    )))
-
-(defface powerline-active-bold-1
-  '((t
-     :weight bold
-     :inherit powerline-active1
-     ))
-  "face"
-  :group 'powerline)
-
-(defface powerline-active-bold-2
-  '((t
-     :weight bold
-     :inherit powerline-active2
-     ))
-  "face"
-  :group 'powerline)
-
-(defface powerline-inactive-bold-1
-  '((t
-     :weight bold
-     :inherit powerline-inactive1
-     ))
-  "face"
-  :group 'powerline)
-
-(defface powerline-inactive-bold-2
-  '((t
-     :weight bold
-     :inherit powerline-inactive2
-     ))
-  "face"
-  :group 'powerline)
-
-(defface my-xah-info
-  '(( t
-      :foreground "#839496"
-      :background "#0e5994"
-      :weight bold
-      ))
-  "Face for global variables."
-  :group 'my-lang-mode )
-
-(eval-and-compile
-  (defun mode-icon (face-value)
-    (let ((family (all-the-icons-icon-family-for-buffer))
-          (icon   (all-the-icons-icon-for-buffer)))
-      (if (not (symbolp icon))
-          ;; (propertize (symbol-name icon)
-          ;; 'face `(:height 0.8 :inherit ,face-value)
-          ;; 'display '(raise 0.1))
-          (propertize icon
-                      'face `(:height 1.1 :family ,family :inherit ,face-value)
-                      'display '(raise 0.0)
-                      ))))
-
-  (defun custom-modeline-region-info (face)
-    (when mark-active
-      (let ((words (count-lines (region-beginning) (region-end)))
-            (chars (count-words (region-end) (region-beginning))))
-	(concat
-	 (propertize (format "   %s" (all-the-icons-octicon "pencil") words chars)
-                     'face `(:family ,(all-the-icons-octicon-family) :inherit ,face)
-                     'display '(raise -0.0))
-	 (propertize (format " (%s, %s)" words chars)
-                     'face `(:height 0.9 :inherit ,face))))))
-
-  (defun -custom-modeline-github-vc (face)
-    (let ((branch (mapconcat 'concat (cdr (split-string vc-mode "[:-]")) "-")))
-      (concat
-       (propertize (format " %s" (all-the-icons-alltheicon "git" :height 1.0 :v-adjust 0.1 :face face))
-                   'display '(raise 0.1))
-       (propertize " • ")
-       (propertize (format "%s" (all-the-icons-octicon "git-branch" :face face))
-                   'display '(raise 0.1))
-       (propertize (format " %s  " branch)
-                   'display '(raise 0.1) 'face `(:inherit ,face)))))
-
-  (defun custom-modeline-icon-vc (face)
-    (when vc-mode
-      (cond
-       ((string-match "Git[:-]" vc-mode) (-custom-modeline-github-vc face))
-       (t (format "%s" vc-mode)))))
-
-  (defun xah-get-current-mode-str ()
-    (if xah-fly-insert-state-q "INSERT  " "COMMAND ")))
-#+END_SRC
-
 * Keys
-** Xah-fly-keys
-*** Init configuration
-#+begin_src emacs-lisp
-(use-package xah-fly-keys
-  :load-path "config"
+** evil 
+#+BEGIN_SRC emacs-lisp
+(use-package evil
   :config
-  (xah-fly-keys 1)
-  (add-hook 'minibuffer-setup-hook 
-            (lambda () 
-              (xah-fly-keys 0)))
-  (define-key xah-fly-key-map (kbd "C-M-c") 'buf-move-up)
-  (define-key xah-fly-key-map (kbd "C-M-t") 'buf-move-down)
-  (define-key xah-fly-key-map (kbd "C-M-h") 'buf-move-left)
-  (define-key xah-fly-key-map (kbd "C-M-n") 'buf-move-right)
+  (evil-mode 1)
+
+  (require 'goto-chg)
+  (evil-define-key nil evil-normal-state-map
+    "," 'other-window)
   )
 
-(eval-and-compile
+(use-package evil-leader
+  :config
+  (global-evil-leader-mode)
+  (evil-leader/set-leader "<SPC>")
+  (define-prefix-command 'evil-projectile)
+  (define-key evil-projectile "p" 'helm-projectile-switch-project)
+  (define-key evil-projectile "a" 'helm-projectile-ag)
 
-  (defun my-keys-have-priority (_file)
-    "Try to ensure that my keybindings retain priority over other minor modes.
-Called via the `after-load-functions' special hook."
-    (unless (eq (caar minor-mode-map-alist) 'xah-fly-keys)
-      (let ((mykeys (assq 'xah-fly-keys minor-mode-map-alist)))
-	(assq-delete-all 'xah-fly-keys minor-mode-map-alist)
-	(add-to-list 'minor-mode-map-alist mykeys))))
+  (evil-leader/set-key
+    "m" 'dired-jump "e" 'eval-defun
+    "a" 'helm-M-x
+    "f" 'helm-mini
+    "s" 'evil-window-split
+    "v" 'evil-window-vsplit
+    "p" 'evil-projectile
+  ))
 
-  (add-hook 'after-load-functions 'my-keys-have-priority))
-#+end_src
-    
-*** Custom Xah keys
+(use-package evil-surround
+  :config
+  (global-evil-surround-mode 1))
 
-#+begin_src emacs-lisp
-(define-key xah-fly--tab-key-map (kbd "x") 'indent-xml)
-(define-key xah-fly-e-keymap (kbd "k") 'paste-xml)
-(define-key xah-fly-leader-key-map (kbd "f") 'helm-mini)
+(use-package evil-org
+  :after org
+  :config
 
-(define-key xah-fly-key-map (kbd "C-r") 'nil)
-(define-key xah-fly-key-map (kbd "C-r") 'helm-projectile-find-file)
-(define-key xah-fly-key-map (kbd "C-o") 'helm-find-files)
-(define-key xah-fly-key-map (kbd "C-k") 'yank)
-(define-key xah-fly-key-map (kbd "C-y") 'company-complete)
+  (add-hook 'org-mode-hook 'evil-org-mode)
+  (add-hook 'evil-org-mode-hook
+	    (lambda ()
+	      (evil-org-set-key-theme '(navigation insert textobjects additional calendar))))
+  )
 
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-
-(defun quit-command()
-  (interactive)
-  (if xah-fly-insert-state-q
-      (xah-fly-command-mode-activate)
-    (if multiple-cursors-mode
-        (if (use-region-p)
-	    (deactivate-mark))
-      (keyboard-quit))
-    ))
-
-(define-key xah-fly-key-map (kbd "<escape>") 'quit-command)
-#+end_src
-
-*** Custom keymaps
-**** Org
-#+BEGIN_SRC emacs-lisp
-(xah-fly--define-keys
- (define-prefix-command 'kde-org-keymap)
- '(
-   ("a" . org-agenda)
-   ("q" . org-archive-subtree)
-   ("r" . org-refile)
-   ("n" . org-add-note)
-   ("p" . org-set-property)
-   ("h" . hydra-org-clock-menu/body)
-   ("c" . org-capture)
-   ("o" . org-open-at-point)
-   ("i" . org-toggle-inline-images)
-   ("j" . (lambda () (interactive) (org-capture nil "j")))
-   ))
-#+END_SRC
-**** Magit
-#+BEGIN_SRC emacs-lisp
-(xah-fly--define-keys
- (define-prefix-command 'kde-git-keymap)
- '(
-   ("s" . magit-status)
-   ("r" . magit-refresh)
-   ("c" . magit-commit)
-   ("p" . magit-push)
-   ))
+  (evil-define-key 'normal org-mode-map
+    (kbd "SPC '") 'org-edit-special)
 #+END_SRC
 ** Key configuration
 
@@ -532,10 +306,28 @@ Called via the `after-load-functions' special hook."
 (global-set-key (kbd "C-c e") 'eval-and-replace)
 
 (global-set-key (kbd "C-d") 'duplicate-line)
-(global-set-key (kbd "C-l") 'goto-line)
 
-(global-set-key (kbd "C-S-p") 'helm-projectile)
-(global-set-key (kbd "C-S-f") 'helm-projectile-ag)
+(define-key evil-normal-state-map (kbd "C-p") 'helm-projectile)
+
+(defun minibuffer-keyboard-quit ()
+  "Abort recursive edit.
+In Delete Selection mode, if the mark is active, just deactivate it;
+then it takes a second \\[keyboard-quit] to abort the minibuffer."
+  (interactive)
+  (if (and delete-selection-mode transient-mark-mode mark-active)
+      (setq deactivate-mark  t)
+    (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
+    (abort-recursive-edit)))
+(define-key evil-normal-state-map [escape] 'keyboard-quit)
+(define-key evil-visual-state-map [escape] 'keyboard-quit)
+(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+(global-set-key [escape] 'evil-exit-emacs-state)
+
+(define-key evil-normal-state-map (kbd "C-f") 'helm-occur)
 #+end_src
 
 * Packages
@@ -580,13 +372,7 @@ Called via the `after-load-functions' special hook."
   (setq helm-autoresize-max-height 0)
   (setq helm-autoresize-min-height 40)
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-  (helm-autoresize-mode 1)
-  :bind (("C-f" . helm-occur)
-         :map helm-map
-         ("M-c" . helm-previous-line)
-         ("M-t" . helm-next-line)
-         :map xah-fly-key-map
-         ("C-r" . helm-find-files)))
+  (helm-autoresize-mode 1))
   
 (use-package helm-descbinds
   :ensure t
@@ -789,7 +575,6 @@ moving point or mark as little as possible."
     (diminish 'ivy-mode)
     (diminish 'which-key-mode)
     (diminish 'undo-tree-mode)
-    (diminish 'xah-fly-keys "xah")
     (diminish 'all-the-icons-dired-mode)
     (diminish-major-mode 'emacs-lisp-mode-hook "ξλ")
     (diminish-major-mode 'lisp-interaction-mode-hook "λ")
@@ -852,15 +637,6 @@ moving point or mark as little as possible."
   (multitran--word (thing-at-point 'word)))
 
 #+END_SRC
-** key-chord
-#+BEGIN_SRC emacs-lisp
-(use-package key-chord
-  :defer t
-  :ensure t
-  :config
-  (key-chord-mode 1)
-  (key-chord-define xah-fly-key-map "``" 'custom-eval-double))
-#+END_SRC
 ** flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
@@ -902,12 +678,6 @@ moving point or mark as little as possible."
   (projectile-global-mode)
   (add-to-list 'projectile-globally-ignored-directories "node_modules"))
 
-(xah-fly--define-keys
- (define-prefix-command 'kde-projectile-keymap)
- '(
-   ("p" . helm-projectile)
-   ("a" . helm-projectile-ag)
-   ))
 
 (use-package helm-projectile
   :defer t
@@ -1674,20 +1444,6 @@ other parameters."
 
 #+END_SRC
 
-* Scratch
-#+BEGIN_SRC emacs-lisp
-(defun generate-interest-org-data ()
-  (interactive)
-  (with-current-buffer (find-file-noselect "~/Dropbox/org/journal.org") 
-   (let ((parsetree (org-element-parse-buffer 'headline))) 
-     (org-element-map parsetree 'headline 
-       (lambda (hl)
-	 (let ((data (org-element-property :title hl))
-	       (interest (org-element-property :INTEREST hl)))
-	   (if (not (equal interest nil))
-	       (list (cons "data" data) (cons "interest" interest))))
-	 )))))
-#+END_SRC
 
 
 
